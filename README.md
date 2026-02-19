@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ivywrite
+
+Full-stack Next.js application for ivywrite — SOPs written by Ivy League students, delivered in 72 hours.
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS v4 with light/dark mode
+- **Database**: Supabase (PostgreSQL)
+- **Payments**: Razorpay (UPI, cards, netbanking)
+- **Email**: Resend
+- **AI**: OpenAI GPT for SOP generation
+- **Hosting**: Vercel
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Set up Supabase
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Run the SQL in `supabase/schema.sql` in the Supabase SQL Editor
+3. Copy your project URL and keys
+
+### 3. Set up Razorpay
+
+1. Create an account at [razorpay.com](https://razorpay.com)
+2. Get your Key ID and Key Secret from the dashboard
+3. Set up a webhook pointing to `https://your-domain.com/api/razorpay/webhook` for the `payment.captured` event
+
+### 4. Set up Resend
+
+1. Create an account at [resend.com](https://resend.com)
+2. Verify your domain or use the sandbox
+3. Get your API key
+
+### 5. Configure environment variables
+
+Copy `.env.example` to `.env.local` and fill in all values:
+
+```bash
+cp .env.example .env.local
+```
+
+### 6. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/
+  page.tsx                  - Landing page
+  questionnaire/page.tsx    - Multi-step SOP questionnaire
+  payment/page.tsx          - Razorpay checkout
+  payment/success/page.tsx  - Payment confirmation
+  payment/failure/page.tsx  - Payment failure
+  admin/page.tsx            - Admin dashboard (password-gated)
+  api/
+    orders/                 - Create new orders
+    razorpay/create/        - Create Razorpay payment order
+    razorpay/verify/        - Verify payment client-side
+    razorpay/webhook/       - Razorpay webhook handler
+    generate-sop/           - Cron job for SOP generation
+    admin/login/            - Admin authentication
+    admin/orders/           - Admin order management
+    admin/regenerate/       - Manual SOP regeneration
+```
 
-## Learn More
+## User Flow
 
-To learn more about Next.js, take a look at the following resources:
+1. Student visits landing page and clicks "Get your SOP"
+2. Fills in a 7-step questionnaire (17 questions)
+3. Submits and is redirected to Razorpay payment (₹999)
+4. On payment success, receives a confirmation email
+5. After 48 hours, a cron job generates the SOP via OpenAI
+6. The SOP is emailed to the student
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Admin Dashboard
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Visit `/admin` and enter the `ADMIN_PASSWORD` to:
 
-## Deploy on Vercel
+- View all orders with status filters
+- See full questionnaire answers and generated SOPs
+- Manually regenerate SOPs
+- Email SOPs to students
+- Add internal notes
+- Track revenue and delivery status
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deploy to Vercel for automatic cron job support:
+
+```bash
+npx vercel
+```
+
+The `vercel.json` configures the SOP generation cron to run every hour.
