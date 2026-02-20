@@ -3,7 +3,6 @@ import Link from "next/link";
 const checks = [
   "Ivy-trained writer matched to your field",
   "Delivered within 72 hours",
-  "One free revision included",
   "Plagiarism-free guarantee",
   "Refund if not delivered on time",
   "Works for all program types",
@@ -32,7 +31,7 @@ export function CTA() {
         <div className="sm:w-px sm:h-0 w-24 h-px bg-border sm:hidden" />
         <div className="text-left">
           <strong className="block text-base font-bold text-heading mb-2">Per Statement of Purpose</strong>
-          <span className="text-sm text-muted">One revision included. Delivered in 72 hours.</span>
+          <span className="text-sm text-muted">Delivered in 72 hours.</span>
         </div>
       </div>
 

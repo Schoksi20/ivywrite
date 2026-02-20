@@ -30,7 +30,7 @@ const tabs = [
       <svg viewBox="0 0 32 32" fill="none"><path d="M4 8h24v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z" stroke="var(--accent)" strokeWidth="1.8" /><path d="M4 8l12 10L28 8" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
     ),
     title: "Delivered by email",
-    desc: "Your polished SOP lands in your inbox within 72 hours. One free revision included.",
+    desc: "Your polished SOP lands in your inbox within 72 hours. Ready to submit.",
   },
 ];
 

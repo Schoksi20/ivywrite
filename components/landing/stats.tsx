@@ -69,7 +69,7 @@ export function Stats() {
           {stats.map((s, i) => (
             <div
               key={i}
-              className="flex flex-col items-start gap-4"
+              className="flex flex-col items-center md:items-start gap-4 text-center md:text-left"
             >
               <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
                 {s.icon}

@@ -14,7 +14,7 @@ const faqs = [
   },
   {
     q: "What if I need changes after I receive my SOP?",
-    a: "Every SOP includes one free revision. Simply reply to your delivery email with your feedback and the same writer will update your statement within 24 hours at no extra cost.",
+    a: "Reply to your delivery email with your feedback and our team will review it promptly.",
   },
   {
     q: "Can you write SOPs for multiple programs or schools?",

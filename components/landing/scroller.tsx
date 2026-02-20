@@ -1,9 +1,22 @@
 const universities = [
-  "Harvard University", "MIT", "Yale University", "Stanford University",
-  "Princeton University", "Columbia University", "University of Chicago",
-  "Wharton (UPenn)", "Cornell University", "Dartmouth College",
-  "Northwestern University", "UC Berkeley", "Duke University",
-  "Johns Hopkins", "Kellogg (Northwestern)", "UC San Diego", "UT Austin", "CMU",
+  { name: "Harvard University", domain: "harvard.edu" },
+  { name: "MIT", domain: "mit.edu" },
+  { name: "Yale University", domain: "yale.edu" },
+  { name: "Stanford University", domain: "stanford.edu" },
+  { name: "Princeton University", domain: "princeton.edu" },
+  { name: "Columbia University", domain: "columbia.edu" },
+  { name: "University of Chicago", domain: "uchicago.edu" },
+  { name: "Wharton (UPenn)", domain: "upenn.edu" },
+  { name: "Cornell University", domain: "cornell.edu" },
+  { name: "Dartmouth College", domain: "dartmouth.edu" },
+  { name: "Northwestern University", domain: "northwestern.edu" },
+  { name: "UC Berkeley", domain: "berkeley.edu" },
+  { name: "Duke University", domain: "duke.edu" },
+  { name: "Johns Hopkins", domain: "jhu.edu" },
+  { name: "Kellogg (Northwestern)", domain: "kellogg.northwestern.edu" },
+  { name: "UC San Diego", domain: "ucsd.edu" },
+  { name: "UT Austin", domain: "utexas.edu" },
+  { name: "CMU", domain: "cmu.edu" },
 ];
 
 export function Announce() {
@@ -31,10 +44,17 @@ export function Scroller() {
           {doubled.map((uni, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 px-8 text-sm font-medium text-body whitespace-nowrap cursor-default hover:text-accent transition-colors"
+              className="flex items-center gap-2.5 px-8 text-sm font-medium text-body whitespace-nowrap cursor-default hover:text-accent transition-colors"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-              {uni}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://www.google.com/s2/favicons?domain=${uni.domain}&sz=32`}
+                alt={uni.name}
+                width={18}
+                height={18}
+                className="rounded-sm shrink-0"
+              />
+              {uni.name}
             </div>
           ))}
         </div>

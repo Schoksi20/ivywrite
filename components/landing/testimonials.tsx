@@ -18,7 +18,7 @@ interface Testimonial {
 
 const testimonials: Testimonial[] = [
   {
-    avatar: "P", name: "Prachi Agrawal", school: "Northwestern University",
+    avatar: "P", name: "P. Agrawal", school: "Northwestern University",
     messages: [
       { text: "Congratulations on your acceptance to the Master of Engineering Management at Northwestern University. Welcome to the Wildcat community!", time: "3:55 PM" },
       { text: "Congratulations!! \u{1F389}", sent: true, time: "3:57 PM" },
@@ -48,7 +48,7 @@ const testimonials: Testimonial[] = [
     avatar: "R", name: "Rohit", school: "Duke University",
     messages: [
       { text: "Sir got my decision from Duke. I got in!!", time: "4:15 PM" },
-      { text: "Ohh congratulations!! \u{1F389} I can finally say UpBroad is going somewhere", sent: true, time: "4:16 PM" },
+      { text: "Ohh congratulations!! \u{1F389} I can finally say ivywrite is going somewhere", sent: true, time: "4:16 PM" },
       { text: "They rejected me \u{1F605} while I was applying, although I got into Columbia \u{2014} but Duke's rejection still hurt", time: "4:17 PM" },
       { text: "Haha I guess I have avenged you", time: "4:17 PM" },
       { text: "Yes of course \u{1F604}", sent: true, time: "4:18 PM" },
@@ -75,7 +75,7 @@ const testimonials: Testimonial[] = [
     ],
   },
   {
-    avatar: "A", name: "Amulya Kant", school: "UC San Diego (Rady MQF)",
+    avatar: "A", name: "A. Kant", school: "UC San Diego (Rady MQF)",
     messages: [
       { text: "Couldn't have done this without your help. Thank you so much!", time: "8:23 AM" },
       { text: "Lets fucking go!!!! \u{2764}\u{FE0F}", sent: true, time: "8:42 AM" },
@@ -94,7 +94,7 @@ const testimonials: Testimonial[] = [
   {
     avatar: "A", name: "Anshul", school: "Dartmouth College",
     messages: [
-      { text: "Thankyou to the entire team of Upbroad, without you this wouldn't have been possible. @Anushk it was great speaking to you on vc \u{2014} thankgod I went with you guys and didn't go ahead with Yocket or gradvine. Lots of referrals coming for you from a future Dartmouth alum \u{1F602}\u{1F602}, my younger brother will also be taking your services!", time: "2:12 PM" },
+      { text: "Thankyou to the entire team of ivywrite, without you this wouldn't have been possible. @Anushk it was great speaking to you on vc \u{2014} thankgod I went with you guys and didn't go ahead with Yocket or gradvine. Lots of referrals coming for you from a future Dartmouth alum \u{1F602}\u{1F602}, my younger brother will also be taking your services!", time: "2:12 PM" },
       { text: "Are bhai aap client bhi bhot shandar the, maja aaya \u{1F64F}", sent: true, time: "2:14 PM" },
     ],
   },

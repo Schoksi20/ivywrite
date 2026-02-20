@@ -32,7 +32,7 @@ const steps = [
       </svg>
     ),
     title: "SOP lands in your inbox",
-    desc: "Within 72 hours your polished, personalized Statement of Purpose arrives by email. Ready to submit. One free revision is included with every single order.",
+    desc: "Within 72 hours your polished, personalized Statement of Purpose arrives by email. Ready to submit.",
   },
 ];
 

@@ -4,14 +4,14 @@ import { useEffect, useRef } from "react";
 import { AnimatedSection } from "./stats";
 
 const writers = [
-  { init: "A", name: "Aditya Sharma", school: "Harvard University", prog: "MS Computer Science, Class of 2023. Specializes in STEM and research SOPs.", ct: "200+ SOPs delivered" },
-  { init: "P", name: "Priya Nair", school: "Yale University", prog: "MBA, Class of 2024. Focuses on business school and management programs.", ct: "180+ SOPs delivered" },
-  { init: "R", name: "Rohan Mehta", school: "MIT", prog: "PhD Electrical Engineering, Class of 2022. STEM research specialist.", ct: "310+ SOPs delivered" },
-  { init: "S", name: "Sneha Kapoor", school: "Princeton University", prog: "MA Public Policy, Class of 2024. Policy, law, and social sciences focus.", ct: "140+ SOPs delivered" },
-  { init: "K", name: "Karthik Iyer", school: "Stanford University", prog: "MS Data Science, Class of 2023. Analytics, AI, and tech programs.", ct: "220+ SOPs delivered" },
-  { init: "N", name: "Neha Bose", school: "Columbia University", prog: "MFA Creative Writing, Class of 2024. Humanities and arts programs.", ct: "95+ SOPs delivered" },
-  { init: "V", name: "Vikram Singh", school: "Booth (U Chicago)", prog: "MBA, Class of 2023. Finance, consulting, and leadership programs.", ct: "160+ SOPs delivered" },
-  { init: "D", name: "Divya Menon", school: "Johns Hopkins", prog: "MS Public Health, Class of 2024. Medical and health science programs.", ct: "130+ SOPs delivered" },
+  { init: "A", name: "A. Sharma", school: "Harvard University", prog: "MS Computer Science, Class of 2023. Specializes in STEM and research SOPs.", ct: "200+ SOPs delivered" },
+  { init: "P", name: "P. Nair", school: "Yale University", prog: "MBA, Class of 2024. Focuses on business school and management programs.", ct: "180+ SOPs delivered" },
+  { init: "R", name: "R. Mehta", school: "MIT", prog: "PhD Electrical Engineering, Class of 2022. STEM research specialist.", ct: "310+ SOPs delivered" },
+  { init: "S", name: "S. Kapoor", school: "Princeton University", prog: "MA Public Policy, Class of 2024. Policy, law, and social sciences focus.", ct: "140+ SOPs delivered" },
+  { init: "K", name: "K. Iyer", school: "Stanford University", prog: "MS Data Science, Class of 2023. Analytics, AI, and tech programs.", ct: "220+ SOPs delivered" },
+  { init: "N", name: "N. Bose", school: "Columbia University", prog: "MFA Creative Writing, Class of 2024. Humanities and arts programs.", ct: "95+ SOPs delivered" },
+  { init: "V", name: "V. Singh", school: "Booth (U Chicago)", prog: "MBA, Class of 2023. Finance, consulting, and leadership programs.", ct: "160+ SOPs delivered" },
+  { init: "D", name: "D. Menon", school: "Johns Hopkins", prog: "MS Public Health, Class of 2024. Medical and health science programs.", ct: "130+ SOPs delivered" },
 ];
 
 export function Writers() {

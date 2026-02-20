@@ -18,7 +18,7 @@ export const questionnaireSteps: QuestionStep[] = [
     title: "Personal Information",
     description: "Basic details so we can deliver your SOP and stay in touch.",
     fields: [
-      { key: "name", label: "Full Name", placeholder: "e.g. Aditya Sharma", type: "text", required: true },
+      { key: "name", label: "Full Name", placeholder: "e.g. A. Sharma", type: "text", required: true },
       { key: "email", label: "Email Address", placeholder: "you@example.com", type: "text", required: true },
       { key: "phone", label: "Phone Number (optional)", placeholder: "+91 98765 43210", type: "text", required: false },
     ],

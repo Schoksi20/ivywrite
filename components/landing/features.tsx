@@ -4,9 +4,10 @@ const features = [
   {
     icon: (
       <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5">
-        <circle cx="10" cy="7" r="4" stroke="var(--accent)" strokeWidth="1.6" />
-        <path d="M3 17c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" />
-        <path d="M15 5l1.5 1.5L19 4" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="10" cy="10" r="7" stroke="var(--accent)" strokeWidth="1.6" />
+        <circle cx="10" cy="10" r="3.5" stroke="var(--accent)" strokeWidth="1.6" />
+        <circle cx="10" cy="10" r="1" fill="var(--accent)" />
+        <path d="M10 3v1.5M10 15.5V17M3 10h1.5M15.5 10H17" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
     ),
     title: "Writer matched to your program",
@@ -25,12 +26,14 @@ const features = [
   {
     icon: (
       <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5">
-        <path d="M4 10l5 5 7-8" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="10" cy="10" r="8.5" stroke="var(--accent)" strokeWidth="1.4" />
+        <rect x="3" y="6" width="14" height="11" rx="2" stroke="var(--accent)" strokeWidth="1.6" />
+        <path d="M7 6V4.5a3 3 0 0 1 6 0V6" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" />
+        <path d="M10 10.5v2" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" />
+        <circle cx="10" cy="10" r="1" fill="var(--accent)" />
       </svg>
     ),
-    title: "One free revision included",
-    desc: "Reply with your feedback and the same writer revises your SOP within 24 hours at no extra charge. Zero back and forth needed.",
+    title: "Confidential & private",
+    desc: "Your application details, background, and SOP are never shared. Every order is handled with full confidentiality from start to delivery.",
   },
   {
     icon: (

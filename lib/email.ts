@@ -124,7 +124,7 @@ export async function sendPaymentConfirmation(
               Expected delivery: within 72 hours
             </p>
             <p style="font-size: 13px; color: #166534; margin: 8px 0 0;">
-              Your SOP will be sent to this email address. One free revision is included.
+              Your SOP will be sent to this email address.
             </p>
           </div>
           <p style="font-size: 14px; line-height: 1.7; color: #666;">
@@ -176,14 +176,6 @@ export async function sendSOPDelivery(
           </p>
           <div style="background: #fafafa; border: 1px solid #e5e5e5; border-radius: 8px; padding: 24px; margin: 24px 0; font-size: 14px; line-height: 1.85; color: #333; white-space: pre-wrap;">
 ${sopContent}
-          </div>
-          <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin: 24px 0;">
-            <p style="font-size: 13px; color: #92400e; margin: 0; font-weight: 600;">
-              Need changes? One free revision is included.
-            </p>
-            <p style="font-size: 13px; color: #92400e; margin: 6px 0 0;">
-              Simply reply to this email with your feedback and we'll revise within 24 hours.
-            </p>
           </div>
           <p style="font-size: 14px; line-height: 1.7; color: #666;">
             We recommend copying this into a Google Doc and reviewing it before submitting.
