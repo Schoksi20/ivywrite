@@ -6,7 +6,7 @@ import type { Order, SopStatus, Coupon } from "@/lib/types";
 
 type OrderSummary = Pick<
   Order,
-  "id" | "created_at" | "name" | "email" | "university" | "program" | "degree_type" | "payment_status" | "sop_status" | "amount_paid"
+  "id" | "created_at" | "name" | "email" | "university" | "program" | "degree_type" | "payment_status" | "sop_status" | "amount_paid" | "generation_cost_usd"
 >;
 
 const STATUS_LABELS: Record<SopStatus, { label: string; color: string }> = {
@@ -649,6 +649,7 @@ export default function AdminPage() {
                     <th className="text-left text-xs text-muted font-semibold px-4 py-3">Payment</th>
                     <th className="text-left text-xs text-muted font-semibold px-4 py-3">SOP Status</th>
                     <th className="text-left text-xs text-muted font-semibold px-4 py-3">Date</th>
+                    <th className="text-left text-xs text-muted font-semibold px-4 py-3">API Cost</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -678,6 +679,11 @@ export default function AdminPage() {
                       </td>
                       <td className="px-4 py-3 text-xs text-muted whitespace-nowrap">
                         {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted whitespace-nowrap">
+                        {order.generation_cost_usd != null
+                          ? `₹${(order.generation_cost_usd * 85).toFixed(2)}`
+                          : "—"}
                       </td>
                     </tr>
                   ))}

@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
   let query = supabase
     .from("orders")
-    .select("id, created_at, name, email, university, program, degree_type, payment_status, sop_status, amount_paid")
+    .select("id, created_at, name, email, university, program, degree_type, payment_status, sop_status, amount_paid, generation_cost_usd")
     .order("created_at", { ascending: false });
 
   if (status && status !== "all") {
