@@ -17,7 +17,7 @@ export default function PaymentSuccessPage() {
 
           <h1 className="text-2xl font-bold text-heading mb-3">Payment Successful!</h1>
           <p className="text-muted text-sm leading-relaxed mb-6">
-            Your payment of <strong className="text-heading">&#8377;999</strong> has been received.
+            Your payment of <strong className="text-heading">&#8377;1,499</strong> has been received.
             We are now crafting your Statement of Purpose.
           </p>
 
