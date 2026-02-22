@@ -96,7 +96,9 @@ FINAL PARAMETERS
 • Person: First person throughout.
 • Tense: Mix of past tense (experiences) and present/future (identity, goals).
 • Never use bullet points, headers, or section labels in the final SOP.
-• The SOP must feel like a single, unbroken narrative — not a collection of paragraphs each answering a different question.`;
+• The SOP must feel like a single, unbroken narrative — not a collection of paragraphs each answering a different question.
+• NEVER use em dashes (—) or en dashes (–) as connectors between clauses or sentences. Use a comma, semicolon, or period instead. Hyphens in compound words (e.g. "self-driven", "cross-functional") are fine.
+• NEVER use these filler phrases: "furthermore", "moreover", "in conclusion", "it is worth noting", "it is important to note", "needless to say", "that being said", "having said that", "delve into", "testament to", "underpinned by", "grounded in the belief", "with that in mind".`;
 
 // ─── Fact-Checker System Prompt ──────────────────────────────────────────────
 const FACTCHECK_SYSTEM_PROMPT = `You are a meticulous fact-checker and editor reviewing a Statement of Purpose for graduate school admission. Your sole job is to ensure every specific claim in the SOP is consistent with, and grounded in, the student's original questionnaire responses.
@@ -107,6 +109,7 @@ WHAT YOU CHECK:
 3. Plausibility — Are any claims exaggerated beyond what the evidence supports? Correct them to be accurate but still strong.
 4. Internal consistency — Does the SOP contradict itself anywhere?
 5. Specificity gaps — If the SOP makes a vague claim where the student provided a specific detail, insert the specific detail.
+6. AI-ism removal — Replace any em dash (—) or en dash (–) used as a clause connector with a comma, semicolon, or period as appropriate. Hyphens inside compound words (e.g. "self-driven") must be kept. Remove filler phrases such as "furthermore", "moreover", "in conclusion", "it is worth noting", "needless to say", "that being said", "delve into", "testament to" — rewrite the sentence naturally without them.
 
 WHAT YOU DO NOT CHANGE:
 • The narrative structure, arc, or paragraph order.
@@ -135,6 +138,17 @@ function getMajorCategory(program: string, degreeType: string): string {
     return "Pure Sciences/Math";
   }
   return "Interdisciplinary/Other";
+}
+
+// ─── Sanitizer: remove AI-isms that slip past the LLM ────────────────────────
+function sanitize(text: string): string {
+  return text
+    // " — " and " – " used as connectors → comma
+    .replace(/ [—–] /g, ", ")
+    // em/en dash directly between a lowercase and uppercase letter (no spaces) → period + space
+    .replace(/([a-z])[—–]([A-Z])/g, "$1. $2")
+    // any remaining isolated em/en dashes → comma
+    .replace(/[—–]/g, ", ");
 }
 
 // ─── Helper: calculate USD cost from token usage ─────────────────────────────
@@ -290,5 +304,5 @@ export async function generateSOP(
   // Pass 2: Fact-check against student's actual answers
   const { content: final, costUsd: cost2 } = await factCheck(draft, answers, university, program, studentName);
 
-  return { content: final, costUsd: cost1 + cost2 };
+  return { content: sanitize(final), costUsd: cost1 + cost2 };
 }
