@@ -40,6 +40,9 @@ create table if not exists orders (
 alter table orders add column if not exists coupon_code text;
 alter table orders add column if not exists discount_amount integer default 0;
 
+-- Generation cost tracking
+alter table orders add column if not exists generation_cost_usd decimal(10,6);
+
 create index if not exists idx_orders_payment_status on orders(payment_status);
 create index if not exists idx_orders_sop_status on orders(sop_status);
 create index if not exists idx_orders_email on orders(email);

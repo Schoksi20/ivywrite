@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
 
       const answers = order.questionnaire_answers as QuestionnaireAnswers;
 
-      const sopContent = await generateSOP(
+      const { content: sopContent, costUsd } = await generateSOP(
         answers,
         order.university,
         order.program,
@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
           sop_status: "delivered",
           sop_generated_at: now,
           sop_delivered_at: now,
+          generation_cost_usd: costUsd,
         })
         .eq("id", order.id);
 

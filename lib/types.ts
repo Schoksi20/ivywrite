@@ -49,6 +49,7 @@ export interface Order {
   admin_notes: string | null;
   coupon_code: string | null;
   discount_amount: number | null;
+  generation_cost_usd: number | null;
 }
 
 export interface Coupon {

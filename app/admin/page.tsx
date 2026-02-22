@@ -39,6 +39,9 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [adminNotes, setAdminNotes] = useState("");
   const [regenerating, setRegenerating] = useState(false);
+  const [emailing, setEmailing] = useState(false);
+  const [editedSopContent, setEditedSopContent] = useState("");
+  const [sopSaved, setSopSaved] = useState(false);
 
   // Coupons state
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -152,6 +155,8 @@ export default function AdminPage() {
       const order = await res.json();
       setSelectedOrder(order);
       setAdminNotes(order.admin_notes || "");
+      setEditedSopContent(order.sop_content || "");
+      setSopSaved(false);
     }
   }
 
@@ -176,14 +181,14 @@ export default function AdminPage() {
     fetchOrders();
   }
 
-  async function regenerateSOP(sendEmail: boolean) {
+  async function regenerateSOP() {
     if (!selectedOrder) return;
     setRegenerating(true);
     try {
       const res = await fetch("/api/admin/regenerate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: selectedOrder.id, sendEmail }),
+        body: JSON.stringify({ orderId: selectedOrder.id, sendEmail: false }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -191,13 +196,49 @@ export default function AdminPage() {
           ...selectedOrder,
           sop_content: data.sopContent,
           sop_status: "delivered",
+          generation_cost_usd: data.costUsd,
         });
+        setEditedSopContent(data.sopContent);
+        setSopSaved(false);
         fetchOrders();
       }
     } catch (err) {
       console.error("Regeneration failed:", err);
     }
     setRegenerating(false);
+  }
+
+  async function emailSOP() {
+    if (!selectedOrder) return;
+    setEmailing(true);
+    try {
+      await fetch("/api/admin/regenerate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: selectedOrder.id,
+          emailOnly: true,
+          sopContent: editedSopContent,
+        }),
+      });
+      setSelectedOrder({ ...selectedOrder, sop_status: "delivered" });
+      fetchOrders();
+    } catch (err) {
+      console.error("Email failed:", err);
+    }
+    setEmailing(false);
+  }
+
+  async function saveSopContent() {
+    if (!selectedOrder) return;
+    await fetch("/api/admin/orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: selectedOrder.id, updates: { sop_content: editedSopContent } }),
+    });
+    setSelectedOrder({ ...selectedOrder, sop_content: editedSopContent });
+    setSopSaved(true);
+    setTimeout(() => setSopSaved(false), 2000);
   }
 
   // Stats
@@ -261,6 +302,15 @@ export default function AdminPage() {
                 <div><span className="text-muted">Program:</span> <span className="text-heading font-medium">{selectedOrder.program}</span></div>
                 <div><span className="text-muted">Degree:</span> <span className="text-heading font-medium">{selectedOrder.degree_type}</span></div>
                 <div><span className="text-muted">Payment:</span> <span className="text-heading font-medium">{selectedOrder.payment_status}</span></div>
+                {selectedOrder.generation_cost_usd != null && (
+                  <div className="col-span-2">
+                    <span className="text-muted">Generation cost:</span>{" "}
+                    <span className="text-heading font-medium">
+                      ₹{(selectedOrder.generation_cost_usd * 85).toFixed(2)}{" "}
+                      <span className="text-muted font-normal">(${selectedOrder.generation_cost_usd.toFixed(4)} USD)</span>
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -274,32 +324,21 @@ export default function AdminPage() {
 
               <div className="bg-card border border-border rounded-xl p-4 space-y-2">
                 <div className="text-xs text-muted mb-2">Actions</div>
-                {selectedOrder.sop_status === "paid" && (
+                <button
+                  onClick={regenerateSOP}
+                  disabled={regenerating || emailing}
+                  className="w-full text-xs font-semibold text-heading bg-surface border border-border rounded-lg px-3 py-2 hover:bg-card-hover transition-colors disabled:opacity-50"
+                >
+                  {regenerating ? "Generating..." : selectedOrder.sop_content ? "Regenerate SOP" : "Generate SOP"}
+                </button>
+                {editedSopContent && (
                   <button
-                    onClick={() => regenerateSOP(true)}
-                    disabled={regenerating}
+                    onClick={emailSOP}
+                    disabled={emailing || regenerating}
                     className="w-full text-xs font-semibold text-white dark:text-black bg-accent rounded-lg px-3 py-2 hover:shadow-[0_4px_16px_var(--accent-glow)] transition-all disabled:opacity-50"
                   >
-                    {regenerating ? "Generating..." : "Generate & Deliver SOP"}
+                    {emailing ? "Sending..." : "Email SOP to Student"}
                   </button>
-                )}
-                {selectedOrder.sop_status !== "paid" && (
-                  <>
-                    <button
-                      onClick={() => regenerateSOP(false)}
-                      disabled={regenerating}
-                      className="w-full text-xs font-semibold text-heading bg-surface border border-border rounded-lg px-3 py-2 hover:bg-card-hover transition-colors disabled:opacity-50"
-                    >
-                      {regenerating ? "Generating..." : "Regenerate SOP"}
-                    </button>
-                    <button
-                      onClick={() => regenerateSOP(true)}
-                      disabled={regenerating}
-                      className="w-full text-xs font-semibold text-white dark:text-black bg-accent rounded-lg px-3 py-2 hover:shadow-[0_4px_16px_var(--accent-glow)] transition-all disabled:opacity-50"
-                    >
-                      Regenerate & Email
-                    </button>
-                  </>
                 )}
                 <button
                   onClick={() => updateStatus("revision_requested")}
@@ -328,13 +367,24 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Generated SOP */}
-          {selectedOrder.sop_content && (
+          {/* Generated SOP — editable */}
+          {(selectedOrder.sop_content || editedSopContent) && (
             <div className="bg-card border border-border rounded-xl p-6 mb-6">
-              <h3 className="text-base font-bold text-heading mb-4">Generated SOP</h3>
-              <div className="text-sm text-body leading-relaxed whitespace-pre-wrap bg-surface rounded-lg p-4 max-h-[600px] overflow-y-auto">
-                {selectedOrder.sop_content}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-bold text-heading">Generated SOP</h3>
+                <button
+                  onClick={saveSopContent}
+                  className="text-xs font-semibold px-4 py-1.5 rounded-lg bg-accent text-white dark:text-black hover:shadow-[0_4px_16px_var(--accent-glow)] transition-all"
+                >
+                  {sopSaved ? "Saved ✓" : "Save SOP"}
+                </button>
               </div>
+              <textarea
+                value={editedSopContent}
+                onChange={(e) => { setEditedSopContent(e.target.value); setSopSaved(false); }}
+                rows={28}
+                className="w-full bg-surface border border-border rounded-lg px-4 py-3 text-sm text-body leading-relaxed font-mono outline-none focus:border-accent resize-y"
+              />
             </div>
           )}
 

@@ -2,10 +2,12 @@ import OpenAI from "openai";
 import type { QuestionnaireAnswers } from "./types";
 
 // ─── Model Configuration ────────────────────────────────────────────────────
-// Update this string to switch models. "gpt-5.2" is not a valid OpenAI model
-// ID — use "gpt-4o", "gpt-4.5-preview", "o3", etc. depending on your access.
 const GENERATION_MODEL = "gpt-5.2";
 const FACTCHECK_MODEL  = "gpt-5.2";
+
+// ─── Pricing (USD per million tokens) — update if OpenAI changes rates ───────
+const INPUT_COST_PER_M  = 10;   // $ per million input tokens
+const OUTPUT_COST_PER_M = 40;   // $ per million output tokens (incl. reasoning)
 
 // ─── Client ─────────────────────────────────────────────────────────────────
 let client: OpenAI | null = null;
@@ -135,6 +137,11 @@ function getMajorCategory(program: string, degreeType: string): string {
   return "Interdisciplinary/Other";
 }
 
+// ─── Helper: calculate USD cost from token usage ─────────────────────────────
+function calcCost(inputTokens: number, outputTokens: number): number {
+  return (inputTokens * INPUT_COST_PER_M + outputTokens * OUTPUT_COST_PER_M) / 1_000_000;
+}
+
 // ─── Pass 1: Generate Draft SOP ──────────────────────────────────────────────
 async function generateDraft(
   answers: QuestionnaireAnswers,
@@ -142,7 +149,7 @@ async function generateDraft(
   program: string,
   degreeType: string,
   studentName: string
-): Promise<string> {
+): Promise<{ content: string; costUsd: number }> {
   const openai = getClient();
   const majorCategory = getMajorCategory(program, degreeType);
 
@@ -205,7 +212,12 @@ INSTRUCTIONS:
     reasoning: { effort: "low" },
   });
 
-  return response.output_text ?? "";
+  const usage = response.usage;
+  const costUsd = usage
+    ? calcCost(usage.input_tokens, usage.output_tokens)
+    : 0;
+
+  return { content: response.output_text ?? "", costUsd };
 }
 
 // ─── Pass 2: Fact-Check & Polish ─────────────────────────────────────────────
@@ -215,7 +227,7 @@ async function factCheck(
   university: string,
   program: string,
   studentName: string
-): Promise<string> {
+): Promise<{ content: string; costUsd: number }> {
   const openai = getClient();
 
   const userPrompt = `STUDENT: ${studentName} | PROGRAM: ${program} at ${university}
@@ -253,7 +265,12 @@ Fact-check the draft against the questionnaire answers above. Correct any inaccu
     reasoning: { effort: "low" },
   });
 
-  return response.output_text ?? draft;
+  const usage = response.usage;
+  const costUsd = usage
+    ? calcCost(usage.input_tokens, usage.output_tokens)
+    : 0;
+
+  return { content: response.output_text ?? draft, costUsd };
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -263,12 +280,12 @@ export async function generateSOP(
   program: string,
   degreeType: string,
   studentName: string
-): Promise<string> {
+): Promise<{ content: string; costUsd: number }> {
   // Pass 1: Generate narrative draft
-  const draft = await generateDraft(answers, university, program, degreeType, studentName);
+  const { content: draft, costUsd: cost1 } = await generateDraft(answers, university, program, degreeType, studentName);
 
   // Pass 2: Fact-check against student's actual answers
-  const final = await factCheck(draft, answers, university, program, studentName);
+  const { content: final, costUsd: cost2 } = await factCheck(draft, answers, university, program, studentName);
 
-  return final;
+  return { content: final, costUsd: cost1 + cost2 };
 }

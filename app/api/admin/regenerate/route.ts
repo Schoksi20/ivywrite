@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { orderId, sendEmail } = await req.json();
+    const { orderId, sendEmail, emailOnly, sopContent } = await req.json();
     const supabase = getServiceClient();
 
     const { data: order, error } = await supabase
@@ -30,13 +30,42 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
+    // ── Email-only mode: send existing/edited SOP without regenerating ──────
+    if (emailOnly) {
+      const contentToSend = sopContent || order.sop_content;
+      if (!contentToSend) {
+        return NextResponse.json({ error: "No SOP content to send" }, { status: 400 });
+      }
+
+      const now = new Date().toISOString();
+      await supabase
+        .from("orders")
+        .update({
+          sop_content: contentToSend,
+          sop_status: "delivered",
+          sop_delivered_at: now,
+        })
+        .eq("id", orderId);
+
+      await sendSOPDelivery(
+        order.email,
+        order.name,
+        order.university,
+        order.program,
+        contentToSend
+      );
+
+      return NextResponse.json({ success: true });
+    }
+
+    // ── Full generation mode ─────────────────────────────────────────────────
     await supabase
       .from("orders")
       .update({ sop_status: "generating" })
       .eq("id", orderId);
 
     const answers = order.questionnaire_answers as QuestionnaireAnswers;
-    const sopContent = await generateSOP(
+    const { content: sopResult, costUsd } = await generateSOP(
       answers,
       order.university,
       order.program,
@@ -48,10 +77,11 @@ export async function POST(req: NextRequest) {
     await supabase
       .from("orders")
       .update({
-        sop_content: sopContent,
+        sop_content: sopResult,
         sop_status: "delivered",
         sop_generated_at: now,
         sop_delivered_at: sendEmail ? now : order.sop_delivered_at,
+        generation_cost_usd: costUsd,
       })
       .eq("id", orderId);
 
@@ -61,11 +91,11 @@ export async function POST(req: NextRequest) {
         order.name,
         order.university,
         order.program,
-        sopContent
+        sopResult
       );
     }
 
-    return NextResponse.json({ success: true, sopContent });
+    return NextResponse.json({ success: true, sopContent: sopResult, costUsd });
   } catch (err) {
     console.error("Regeneration error:", err);
     return NextResponse.json({ error: "Failed to regenerate SOP" }, { status: 500 });
