@@ -5,9 +5,9 @@ import type { QuestionnaireAnswers } from "./types";
 const GENERATION_MODEL = "gpt-5.2";
 const FACTCHECK_MODEL  = "gpt-5.2";
 
-// ─── Pricing (USD per million tokens) — update if OpenAI changes rates ───────
-const INPUT_COST_PER_M  = 10;   // $ per million input tokens
-const OUTPUT_COST_PER_M = 40;   // $ per million output tokens (incl. reasoning)
+// ─── Pricing (USD per million tokens) — gpt-5.2 Standard ────────────────────
+const INPUT_COST_PER_M  = 1.75;  // $ per million input tokens
+const OUTPUT_COST_PER_M = 14.00; // $ per million output tokens
 
 // ─── Client ─────────────────────────────────────────────────────────────────
 let client: OpenAI | null = null;
@@ -195,6 +195,9 @@ Why This Specific Program (faculty, labs, courses, culture): ${answers.perfectAl
 5–10 Year Vision: ${answers.fiveYearVision}
 
 Legacy Contribution: ${answers.legacyContribution}
+
+─── ADDITIONAL INFORMATION ───
+${answers.additionalInfo ? answers.additionalInfo : "None provided"}
 
 ═══════════════════════════════════════
 

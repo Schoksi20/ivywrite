@@ -16,6 +16,7 @@ export interface QuestionnaireAnswers {
   perfectAlignment: string;
   fiveYearVision: string;
   legacyContribution: string;
+  additionalInfo?: string;
 }
 
 export type PaymentStatus = "pending" | "paid" | "failed";

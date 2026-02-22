@@ -5,6 +5,7 @@ export interface QuestionField {
   type: "text" | "textarea" | "select";
   required: boolean;
   options?: string[];
+  maxWords?: number;
 }
 
 export interface QuestionStep {
@@ -38,7 +39,7 @@ export const questionnaireSteps: QuestionStep[] = [
         options: ["MS", "MBA", "PhD", "MA", "MFA", "MPH", "LLM", "MEng", "Other"],
       },
       { key: "englishTestScore", label: "English Test Score (GRE Verbal / GMAT Verbal / IELTS / TOEFL)", placeholder: "e.g. GRE Verbal 165, TOEFL 110", type: "text", required: true },
-      { key: "programsApplying", label: "All Programs You Are Applying To", placeholder: "e.g. Stanford MS CS, MIT MS CS, CMU MS CS", type: "textarea", required: true },
+      { key: "programsApplying", label: "All Programs You Are Applying To", placeholder: "e.g. Stanford MS CS, MIT MS CS, CMU MS CS", type: "textarea", required: true, maxWords: 500 },
     ],
   },
   {
@@ -51,6 +52,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "Include where you were, what you were doing, what others missed, and how it changed your perspective...",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
       {
         key: "intellectualDNA",
@@ -58,6 +60,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "Describe your unique thinking style and a time it led to an unexpected solution or insight...",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
       {
         key: "authenticContradiction",
@@ -65,6 +68,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "What contradiction or unexpected pairing defines your unique perspective?",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
     ],
   },
@@ -78,6 +82,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "What genuinely puzzles you that drives your career decisions?",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
       {
         key: "transformationFailure",
@@ -85,6 +90,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "What went wrong? How did it change your approach? What strength did you discover?",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
       {
         key: "beliefShift",
@@ -92,6 +98,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "How did this shift change your trajectory?",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
     ],
   },
@@ -105,6 +112,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "What did this reveal about your potential?",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
       {
         key: "leadershipImpact",
@@ -112,6 +120,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "Include numbers and outcomes if possible...",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
       {
         key: "analyticalThinking",
@@ -119,6 +128,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "What tools or methods did you use?",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
     ],
   },
@@ -132,6 +142,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "What did this teach you about complexity in your field?",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
       {
         key: "industryExposure",
@@ -139,6 +150,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "Internships, projects, competitions, work experience...",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
       {
         key: "uniquePosition",
@@ -146,6 +158,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "Because of your specific combination of experiences and perspectives...",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
     ],
   },
@@ -159,6 +172,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "Be specific about faculty, resources, culture, and opportunities that make this the ideal fit...",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
       {
         key: "fiveYearVision",
@@ -166,6 +180,7 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "What specific impact do you want to make? How will you measure success?",
         type: "textarea",
         required: true,
+        maxWords: 500,
       },
       {
         key: "legacyContribution",
@@ -173,6 +188,15 @@ export const questionnaireSteps: QuestionStep[] = [
         placeholder: "What story do you want your career to tell?",
         type: "textarea",
         required: true,
+        maxWords: 500,
+      },
+      {
+        key: "additionalInfo",
+        label: "Is there any other relevant information you would like to share? (optional)",
+        placeholder: "Anything else that might help us write a stronger, more personalised SOP — awards, publications, extracurriculars, context behind a gap year, etc.",
+        type: "textarea",
+        required: false,
+        maxWords: 500,
       },
     ],
   },

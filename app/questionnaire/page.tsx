@@ -75,6 +75,10 @@ export default function QuestionnairePage() {
     }
   }
 
+    function countWords(text: string): number {
+    return text.trim() ? text.trim().split(/\s+/).length : 0;
+  }
+
   function validateStep(): boolean {
     const newErrors: Record<string, string> = {};
     for (const field of currentStep.fields) {
@@ -85,6 +89,12 @@ export default function QuestionnairePage() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData[field.key])) {
           newErrors[field.key] = "Please enter a valid email address";
+        }
+      }
+      if (field.maxWords && formData[field.key]) {
+        const wc = countWords(formData[field.key]);
+        if (wc > field.maxWords) {
+          newErrors[field.key] = `Please keep this under ${field.maxWords} words (currently ${wc})`;
         }
       }
     }
@@ -220,17 +230,30 @@ export default function QuestionnairePage() {
               </label>
 
               {field.type === "textarea" ? (
-                <textarea
-                  value={formData[field.key] || ""}
-                  onChange={(e) => handleChange(field.key, e.target.value)}
-                  placeholder={field.placeholder}
-                  rows={5}
-                  className={`w-full bg-card border rounded-lg px-4 py-3 text-sm text-heading placeholder:text-muted2 outline-none transition-colors resize-y min-h-[120px] ${
-                    errors[field.key]
-                      ? "border-red-500 focus:border-red-500"
-                      : "border-border focus:border-accent"
-                  }`}
-                />
+                <>
+                  <textarea
+                    value={formData[field.key] || ""}
+                    onChange={(e) => handleChange(field.key, e.target.value)}
+                    placeholder={field.placeholder}
+                    rows={5}
+                    className={`w-full bg-card border rounded-lg px-4 py-3 text-sm text-heading placeholder:text-muted2 outline-none transition-colors resize-y min-h-[120px] ${
+                      errors[field.key]
+                        ? "border-red-500 focus:border-red-500"
+                        : "border-border focus:border-accent"
+                    }`}
+                  />
+                  {field.maxWords && (
+                    <div className={`text-xs mt-1.5 text-right tabular-nums ${
+                      countWords(formData[field.key] || "") > field.maxWords
+                        ? "text-red-500 font-semibold"
+                        : countWords(formData[field.key] || "") > field.maxWords * 0.9
+                        ? "text-yellow-500"
+                        : "text-muted"
+                    }`}>
+                      {countWords(formData[field.key] || "")} / {field.maxWords} words
+                    </div>
+                  )}
+                </>
               ) : field.type === "select" ? (
                 <select
                   value={formData[field.key] || ""}
