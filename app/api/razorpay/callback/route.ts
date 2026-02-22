@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const orderId = searchParams.get("orderId");
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId) {
-      return NextResponse.redirect(new URL(`/payment/failure?orderId=${orderId || ""}`, req.url));
+      return NextResponse.redirect(new URL(`/payment/failure?orderId=${orderId || ""}`, req.url), 303);
     }
 
     const isValid = verifyPaymentSignature(
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (!isValid) {
-      return NextResponse.redirect(new URL(`/payment/failure?orderId=${orderId}`, req.url));
+      return NextResponse.redirect(new URL(`/payment/failure?orderId=${orderId}`, req.url), 303);
     }
 
     const supabase = getServiceClient();
@@ -62,9 +62,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.redirect(new URL(`/payment/success?orderId=${orderId}`, req.url));
+    return NextResponse.redirect(new URL(`/payment/success?orderId=${orderId}`, req.url), 303);
   } catch (err) {
     console.error("Callback error:", err);
-    return NextResponse.redirect(new URL("/payment/failure", req.url));
+    return NextResponse.redirect(new URL("/payment/failure", req.url), 303);
   }
 }

@@ -354,7 +354,7 @@ function PaymentContent() {
         </button>
 
         <p className="text-center text-xs text-muted mt-4">
-          Secured by Razorpay · 100% refund if not delivered in 72h
+          Secured by Razorpay · Delivered to your inbox in 72 hours
         </p>
       </div>
     </div>
