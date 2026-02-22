@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { AnimatedSection } from "./stats";
+import { WordReveal } from "@/components/ui/word-reveal";
+import { TiltCard } from "@/components/ui/tilt-card";
 
 interface Message {
   text: string;
@@ -137,9 +139,14 @@ function WACard({ t }: { t: Testimonial }) {
   );
 }
 
+// Parallax factors per column (3-col grid)
+const COL_FACTORS = [0.6, 0, -0.6];
+
 export function Testimonials() {
   const gridRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
+  // Entrance stagger animation
   useEffect(() => {
     const el = gridRef.current;
     if (!el) return;
@@ -150,6 +157,7 @@ export function Testimonials() {
             setTimeout(() => {
               c.style.opacity = "1";
               c.style.transform = "translateY(0)";
+              c.style.filter = "blur(0px)";
             }, i * 70);
           });
           io.unobserve(el);
@@ -161,15 +169,46 @@ export function Testimonials() {
     return () => io.disconnect();
   }, []);
 
+  // Parallax scroll effect per column
+  useEffect(() => {
+    let raf: number;
+    function update() {
+      const section = sectionRef.current;
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const center = rect.top + rect.height / 2;
+      const progress = (window.innerHeight / 2 - center) / (window.innerHeight / 2 + rect.height / 2);
+      const offset = progress * 60;
+
+      section.querySelectorAll<HTMLElement>("[data-parallax-col]").forEach((el) => {
+        const factor = parseFloat(el.dataset.parallaxCol || "0");
+        el.style.transform = `translateY(${offset * factor}px)`;
+      });
+    }
+
+    function onScroll() {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    update();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <section className="py-20 md:py-32 px-6 md:px-12 bg-surface" id="testimonials">
+    <section ref={sectionRef} className="py-20 md:py-32 px-6 md:px-12 bg-surface" id="testimonials">
       <div className="max-w-6xl mx-auto">
         <AnimatedSection className="mb-12">
           <div className="text-xs tracking-wider uppercase text-accent font-semibold mb-4">
             Real admits. Real reactions.
           </div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight max-w-2xl text-heading">
-            The moment they <span className="text-accent">got in.</span>
+            <WordReveal text="The moment they" />{" "}
+            <span className="text-accent"><WordReveal text="got in." delay={300} /></span>
           </h2>
           <p className="text-base text-body leading-relaxed max-w-2xl mt-4">
             These are real conversations from real students the moment their admit emails arrived. Unfiltered. Unedited.
@@ -180,10 +219,17 @@ export function Testimonials() {
           {testimonials.map((t, i) => (
             <div
               key={i}
-              data-card
-              style={{ opacity: 0, transform: "translateY(20px)", transition: "opacity 0.5s ease, transform 0.5s ease" }}
+              data-parallax-col={String(COL_FACTORS[i % 3])}
+              style={{ transition: "transform 0.1s linear" }}
             >
-              <WACard t={t} />
+              <div
+                data-card
+                style={{ opacity: 0, transform: "translateY(20px)", filter: "blur(6px)", transition: "opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease" }}
+              >
+                <TiltCard maxTilt={4}>
+                  <WACard t={t} />
+                </TiltCard>
+              </div>
             </div>
           ))}
         </div>

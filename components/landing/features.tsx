@@ -1,4 +1,8 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import { AnimatedSection } from "./stats";
+import { ScrambleText } from "@/components/ui/scramble-text";
 
 const features = [
   {
@@ -68,29 +72,59 @@ const features = [
 ];
 
 export function Features() {
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.querySelectorAll<HTMLElement>("[data-card]").forEach((c, i) => {
+            setTimeout(() => {
+              c.style.opacity = "1";
+              c.style.transform = "translateY(0)";
+              c.style.filter = "blur(0px)";
+            }, i * 80);
+          });
+          io.unobserve(el);
+        }
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <section className="py-20 md:py-32 px-6 md:px-12 bg-bg" id="features">
       <div className="max-w-6xl mx-auto">
         <AnimatedSection>
           <div className="text-xs tracking-wider uppercase text-accent font-semibold mb-4">Capabilities</div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight max-w-2xl text-heading">
-            Designed for <span className="text-accent">serious applicants</span>
+            <ScrambleText text="Designed for" />{" "}
+            <span className="text-accent">
+              <ScrambleText text="serious applicants" delay={500} />
+            </span>
           </h2>
         </AnimatedSection>
 
-        <AnimatedSection className="mt-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((f, i) => (
-              <div key={i} className="bg-card p-8 rounded-xl border border-border hover:border-accent/30 hover:shadow-lg transition-all">
-                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-6">
-                  {f.icon}
-                </div>
-                <div className="text-base font-bold text-heading mb-3">{f.title}</div>
-                <div className="text-sm text-body leading-relaxed">{f.desc}</div>
+        <div ref={gridRef} className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+          {features.map((f, i) => (
+            <div
+              key={i}
+              data-card
+              style={{ opacity: 0, transform: "translateY(20px)", filter: "blur(6px)", transition: "opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease" }}
+              className="bg-card p-8 rounded-xl border border-border hover:border-accent/30 hover:shadow-lg transition-colors"
+            >
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-6">
+                {f.icon}
               </div>
-            ))}
-          </div>
-        </AnimatedSection>
+              <div className="text-base font-bold text-heading mb-3">{f.title}</div>
+              <div className="text-sm text-body leading-relaxed">{f.desc}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

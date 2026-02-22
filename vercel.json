@@ -1,8 +1,1 @@
-{
-  "crons": [
-    {
-      "path": "/api/generate-sop",
-      "schedule": "0 0 * * *"
-    }
-  ]
-}
+{}

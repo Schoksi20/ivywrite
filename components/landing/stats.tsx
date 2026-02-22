@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { FlipCounter } from "@/components/ui/flip-counter";
 
 function AnimatedSection({ children, className }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -18,7 +19,16 @@ function AnimatedSection({ children, className }: { children: React.ReactNode; c
   }, []);
 
   return (
-    <div ref={ref} className={`transition-all duration-500 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"} ${className ?? ""}`}>
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        transition: "opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(16px)",
+        filter: visible ? "blur(0px)" : "blur(6px)",
+      }}
+    >
       {children}
     </div>
   );
@@ -32,7 +42,8 @@ const stats = [
         <path d="M12.5 4.5l3 3" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
     ),
-    value: "2,400",
+    value: 2400,
+    prefix: "",
     suffix: "+",
     desc: "SOPs delivered to students worldwide",
   },
@@ -44,7 +55,8 @@ const stats = [
         <path d="M19 7.5v4" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
     ),
-    value: "94",
+    value: 94,
+    prefix: "",
     suffix: "%",
     desc: "Admit rate among ivywrite users",
   },
@@ -55,7 +67,8 @@ const stats = [
         <path d="M10 6v4l2.5 2.5" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    value: "<72",
+    value: 72,
+    prefix: "<",
     suffix: "h",
     desc: "Guaranteed delivery to your inbox",
   },
@@ -76,8 +89,11 @@ export function Stats() {
               </div>
               <div>
                 <div className="text-5xl font-bold tracking-tight leading-none text-accent">
-                  {s.value}
-                  <sub className="text-2xl font-bold">{s.suffix}</sub>
+                  <FlipCounter
+                    value={s.value}
+                    prefix={s.prefix}
+                    suffix={s.suffix}
+                  />
                 </div>
                 <div className="text-sm text-body mt-2 leading-relaxed">{s.desc}</div>
               </div>

@@ -13,10 +13,6 @@ const faqs = [
     a: "A real human being who has been through the admissions process at the school you are targeting writes your SOP. They understand what admissions committees look for because they have experienced it themselves. AI does not know what Harvard SEAS values in 2025. Our writers do.",
   },
   {
-    q: "What if I need changes after I receive my SOP?",
-    a: "Reply to your delivery email with your feedback and our team will review it promptly.",
-  },
-  {
     q: "Can you write SOPs for multiple programs or schools?",
     a: "Absolutely. Each program gets its own tailored SOP. Order separately for each school or contact us for a bundle discount if you are applying to three or more programs.",
   },

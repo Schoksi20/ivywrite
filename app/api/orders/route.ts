@@ -2,6 +2,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServiceClient } from "@/lib/supabase";
 import type { CreateOrderPayload } from "@/lib/types";
 
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const orderId = searchParams.get("orderId");
+
+  if (!orderId) {
+    return NextResponse.json({ error: "Missing orderId" }, { status: 400 });
+  }
+
+  const supabase = getServiceClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select("id, name, university, program, degree_type, payment_status")
+    .eq("id", orderId)
+    .single();
+
+  if (error || !data) {
+    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+  }
+
+  return NextResponse.json(data);
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body: CreateOrderPayload = await req.json();

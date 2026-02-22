@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import type { Order, SopStatus } from "@/lib/types";
+import type { Order, SopStatus, Coupon } from "@/lib/types";
 
 type OrderSummary = Pick<
   Order,
@@ -30,12 +30,28 @@ export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [view, setView] = useState<"orders" | "coupons">("orders");
+
+  // Orders state
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [filter, setFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
   const [adminNotes, setAdminNotes] = useState("");
   const [regenerating, setRegenerating] = useState(false);
+
+  // Coupons state
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [loadingCoupons, setLoadingCoupons] = useState(false);
+  const [couponForm, setCouponForm] = useState({
+    code: "",
+    discount_type: "percent" as "percent" | "flat",
+    discount_value: "",
+    max_uses: "",
+    expires_at: "",
+  });
+  const [couponFormError, setCouponFormError] = useState("");
+  const [creatingCoupon, setCreatingCoupon] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -49,9 +65,71 @@ export default function AdminPage() {
     setLoading(false);
   }, [filter]);
 
+  const fetchCoupons = useCallback(async () => {
+    setLoadingCoupons(true);
+    const res = await fetch("/api/admin/coupons");
+    if (res.ok) {
+      const data = await res.json();
+      setCoupons(data);
+    }
+    setLoadingCoupons(false);
+  }, []);
+
   useEffect(() => {
     if (authed) fetchOrders();
   }, [authed, filter, fetchOrders]);
+
+  useEffect(() => {
+    if (authed && view === "coupons") fetchCoupons();
+  }, [authed, view, fetchCoupons]);
+
+  async function createCoupon(e: React.FormEvent) {
+    e.preventDefault();
+    setCouponFormError("");
+    if (!couponForm.code.trim() || !couponForm.discount_value) {
+      setCouponFormError("Code and discount value are required.");
+      return;
+    }
+    setCreatingCoupon(true);
+    const res = await fetch("/api/admin/coupons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: couponForm.code.trim().toUpperCase(),
+        discount_type: couponForm.discount_type,
+        discount_value: Number(couponForm.discount_value),
+        max_uses: couponForm.max_uses ? Number(couponForm.max_uses) : null,
+        expires_at: couponForm.expires_at || null,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setCouponFormError(data.error || "Failed to create coupon");
+    } else {
+      setCouponForm({ code: "", discount_type: "percent", discount_value: "", max_uses: "", expires_at: "" });
+      fetchCoupons();
+    }
+    setCreatingCoupon(false);
+  }
+
+  async function toggleCoupon(id: string, current: boolean) {
+    await fetch("/api/admin/coupons", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, updates: { is_active: !current } }),
+    });
+    fetchCoupons();
+  }
+
+  async function deleteCoupon(id: string) {
+    if (!confirm("Delete this coupon?")) return;
+    await fetch("/api/admin/coupons", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    fetchCoupons();
+  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -196,20 +274,33 @@ export default function AdminPage() {
 
               <div className="bg-card border border-border rounded-xl p-4 space-y-2">
                 <div className="text-xs text-muted mb-2">Actions</div>
-                <button
-                  onClick={() => regenerateSOP(false)}
-                  disabled={regenerating}
-                  className="w-full text-xs font-semibold text-heading bg-surface border border-border rounded-lg px-3 py-2 hover:bg-card-hover transition-colors disabled:opacity-50"
-                >
-                  {regenerating ? "Generating..." : "Regenerate SOP"}
-                </button>
-                <button
-                  onClick={() => regenerateSOP(true)}
-                  disabled={regenerating}
-                  className="w-full text-xs font-semibold text-white dark:text-black bg-accent rounded-lg px-3 py-2 hover:shadow-[0_4px_16px_var(--accent-glow)] transition-all disabled:opacity-50"
-                >
-                  Regenerate & Email
-                </button>
+                {selectedOrder.sop_status === "paid" && (
+                  <button
+                    onClick={() => regenerateSOP(true)}
+                    disabled={regenerating}
+                    className="w-full text-xs font-semibold text-white dark:text-black bg-accent rounded-lg px-3 py-2 hover:shadow-[0_4px_16px_var(--accent-glow)] transition-all disabled:opacity-50"
+                  >
+                    {regenerating ? "Generating..." : "Generate & Deliver SOP"}
+                  </button>
+                )}
+                {selectedOrder.sop_status !== "paid" && (
+                  <>
+                    <button
+                      onClick={() => regenerateSOP(false)}
+                      disabled={regenerating}
+                      className="w-full text-xs font-semibold text-heading bg-surface border border-border rounded-lg px-3 py-2 hover:bg-card-hover transition-colors disabled:opacity-50"
+                    >
+                      {regenerating ? "Generating..." : "Regenerate SOP"}
+                    </button>
+                    <button
+                      onClick={() => regenerateSOP(true)}
+                      disabled={regenerating}
+                      className="w-full text-xs font-semibold text-white dark:text-black bg-accent rounded-lg px-3 py-2 hover:shadow-[0_4px_16px_var(--accent-glow)] transition-all disabled:opacity-50"
+                    >
+                      Regenerate & Email
+                    </button>
+                  </>
+                )}
                 <button
                   onClick={() => updateStatus("revision_requested")}
                   className="w-full text-xs font-semibold text-orange-500 bg-orange-500/10 border border-orange-500/20 rounded-lg px-3 py-2 hover:bg-orange-500/15 transition-colors"
@@ -273,10 +364,30 @@ export default function AdminPage() {
     <div className="min-h-screen bg-bg">
       <div className="sticky top-0 z-40 bg-bg/95 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/" className="text-[17px] font-extrabold tracking-tight text-heading">
-            ivy<span className="text-accent">write</span>
-            <span className="text-xs font-medium text-muted ml-2">admin</span>
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/" className="text-[17px] font-extrabold tracking-tight text-heading">
+              ivy<span className="text-accent">write</span>
+              <span className="text-xs font-medium text-muted ml-2">admin</span>
+            </Link>
+            <nav className="flex gap-1">
+              <button
+                onClick={() => setView("orders")}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                  view === "orders" ? "bg-accent text-white dark:text-black" : "text-muted hover:text-heading"
+                }`}
+              >
+                Orders
+              </button>
+              <button
+                onClick={() => setView("coupons")}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                  view === "coupons" ? "bg-accent text-white dark:text-black" : "text-muted hover:text-heading"
+                }`}
+              >
+                Coupons
+              </button>
+            </nav>
+          </div>
           <button
             onClick={() => { document.cookie = "admin_session=; path=/; max-age=0"; setAuthed(false); }}
             className="text-xs text-muted hover:text-heading transition-colors"
@@ -287,6 +398,156 @@ export default function AdminPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-5 py-8">
+
+        {/* Coupons view */}
+        {view === "coupons" && (
+          <div>
+            {/* Create coupon form */}
+            <div className="bg-card border border-border rounded-xl p-6 mb-6">
+              <h2 className="text-base font-bold text-heading mb-4">Create Coupon</h2>
+              <form onSubmit={createCoupon} className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs text-muted mb-1.5 font-medium">Code</label>
+                  <input
+                    type="text"
+                    value={couponForm.code}
+                    onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value.toUpperCase() })}
+                    placeholder="LAUNCH50"
+                    className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-heading placeholder:text-muted2 outline-none focus:border-accent uppercase"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted mb-1.5 font-medium">Discount Type</label>
+                  <select
+                    value={couponForm.discount_type}
+                    onChange={(e) => setCouponForm({ ...couponForm, discount_type: e.target.value as "percent" | "flat" })}
+                    className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-heading outline-none focus:border-accent"
+                  >
+                    <option value="percent">Percent (%)</option>
+                    <option value="flat">Flat (₹)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-muted mb-1.5 font-medium">
+                    {couponForm.discount_type === "percent" ? "Percent Off" : "Amount Off (₹)"}
+                  </label>
+                  <input
+                    type="number"
+                    value={couponForm.discount_value}
+                    onChange={(e) => setCouponForm({ ...couponForm, discount_value: e.target.value })}
+                    placeholder={couponForm.discount_type === "percent" ? "50" : "500"}
+                    min="1"
+                    className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-heading placeholder:text-muted2 outline-none focus:border-accent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted mb-1.5 font-medium">Max Uses (blank = unlimited)</label>
+                  <input
+                    type="number"
+                    value={couponForm.max_uses}
+                    onChange={(e) => setCouponForm({ ...couponForm, max_uses: e.target.value })}
+                    placeholder="100"
+                    min="1"
+                    className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-heading placeholder:text-muted2 outline-none focus:border-accent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted mb-1.5 font-medium">Expires At (optional)</label>
+                  <input
+                    type="datetime-local"
+                    value={couponForm.expires_at}
+                    onChange={(e) => setCouponForm({ ...couponForm, expires_at: e.target.value })}
+                    className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-heading outline-none focus:border-accent"
+                  />
+                </div>
+                <div className="flex items-end">
+                  {couponFormError && (
+                    <p className="text-red-500 text-xs mb-2">{couponFormError}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={creatingCoupon}
+                    className="w-full bg-accent text-white dark:text-black text-sm font-bold px-4 py-2 rounded-lg hover:shadow-[0_4px_16px_var(--accent-glow)] transition-all disabled:opacity-50"
+                  >
+                    {creatingCoupon ? "Creating..." : "Create Coupon"}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Coupons table */}
+            {loadingCoupons ? (
+              <div className="text-center py-12">
+                <div className="w-8 h-8 border-2 border-border border-t-accent rounded-full animate-spin mx-auto" />
+              </div>
+            ) : coupons.length === 0 ? (
+              <div className="text-center py-12 text-muted text-sm">No coupons yet.</div>
+            ) : (
+              <div className="bg-card border border-border rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-surface">
+                        <th className="text-left text-xs text-muted font-semibold px-4 py-3">Code</th>
+                        <th className="text-left text-xs text-muted font-semibold px-4 py-3">Discount</th>
+                        <th className="text-left text-xs text-muted font-semibold px-4 py-3">Uses</th>
+                        <th className="text-left text-xs text-muted font-semibold px-4 py-3">Expires</th>
+                        <th className="text-left text-xs text-muted font-semibold px-4 py-3">Status</th>
+                        <th className="text-left text-xs text-muted font-semibold px-4 py-3">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {coupons.map((c) => (
+                        <tr key={c.id} className="border-b border-border last:border-b-0">
+                          <td className="px-4 py-3 font-mono font-bold text-heading">{c.code}</td>
+                          <td className="px-4 py-3 text-body">
+                            {c.discount_type === "percent"
+                              ? `${c.discount_value}% off`
+                              : `₹${c.discount_value} off`}
+                          </td>
+                          <td className="px-4 py-3 text-body">
+                            {c.used_count}{c.max_uses !== null ? ` / ${c.max_uses}` : ""}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted">
+                            {c.expires_at
+                              ? new Date(c.expires_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+                              : "Never"}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                              c.is_active ? "text-accent bg-accent-dim" : "text-muted bg-surface"
+                            }`}>
+                              {c.is_active ? "Active" : "Inactive"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => toggleCoupon(c.id, c.is_active)}
+                                className="text-xs text-muted hover:text-heading transition-colors"
+                              >
+                                {c.is_active ? "Disable" : "Enable"}
+                              </button>
+                              <button
+                                onClick={() => deleteCoupon(c.id)}
+                                className="text-xs text-red-500 hover:text-red-400 transition-colors"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Orders view */}
+        {view === "orders" && <>
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
@@ -375,6 +636,7 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+        </>}
       </div>
     </div>
   );

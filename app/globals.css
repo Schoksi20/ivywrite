@@ -90,3 +90,77 @@ body {
 .animate-pulse-dot {
   animation: pulse 2s infinite;
 }
+
+/* ── Aurora blobs ── */
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(40px, -50px) scale(1.07); }
+  66%       { transform: translate(-25px, 25px) scale(0.95); }
+}
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(-50px, 30px) scale(0.96); }
+  66%       { transform: translate(30px, -25px) scale(1.06); }
+}
+@keyframes aurora-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(-20px, -40px) scale(1.1); }
+}
+
+/* ── TextShimmer ── */
+@keyframes text-shimmer {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+.animate-text-shimmer {
+  background-size: 200% auto;
+  animation: text-shimmer 3s linear infinite;
+}
+
+/* ── BorderBeam ── */
+@keyframes border-beam {
+  from { offset-distance: 0%; }
+  to   { offset-distance: 100%; }
+}
+
+/* ── Card shine sweep ── */
+@keyframes card-shine {
+  from { left: -80%; }
+  to   { left: 130%; }
+}
+.card-shine-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.card-shine-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -80%;
+  width: 55%;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255,255,255,0.18) 50%,
+    transparent 80%
+  );
+  transform: skewX(-18deg);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.card-shine-wrap:hover::after {
+  opacity: 1;
+  animation: card-shine 0.55s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+/* ── AnimatedBeam (step connector) ── */
+@keyframes beam-travel {
+  0%   { left: -3rem; opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+.animate-beam-travel {
+  animation: beam-travel 2.2s ease-in-out infinite;
+}

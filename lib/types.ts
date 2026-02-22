@@ -47,6 +47,20 @@ export interface Order {
   sop_generated_at: string | null;
   sop_delivered_at: string | null;
   admin_notes: string | null;
+  coupon_code: string | null;
+  discount_amount: number | null;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discount_type: "percent" | "flat";
+  discount_value: number;
+  max_uses: number | null;
+  used_count: number;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
 }
 
 export interface CreateOrderPayload {

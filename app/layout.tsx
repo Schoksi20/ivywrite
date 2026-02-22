@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Crimson_Text, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const crimsonText = Crimson_Text({
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${plusJakartaSans.variable} ${crimsonText.variable} font-sans antialiased`}>
         <ThemeProvider>{children}</ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

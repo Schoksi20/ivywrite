@@ -14,22 +14,22 @@ export function Nav() {
 
       <ul className="hidden md:flex items-center gap-8 list-none">
         <li>
-          <a href="#how" className="text-body text-sm font-medium hover:text-heading transition-colors">
+          <a href="#how" className="cursor-pointer text-body text-sm font-medium hover:text-heading transition-colors">
             How it works
           </a>
         </li>
         <li>
-          <a href="#writers" className="text-body text-sm font-medium hover:text-heading transition-colors">
+          <a href="#writers" className="cursor-pointer text-body text-sm font-medium hover:text-heading transition-colors">
             Our writers
           </a>
         </li>
         <li>
-          <a href="#testimonials" className="text-body text-sm font-medium hover:text-heading transition-colors">
+          <a href="#testimonials" className="cursor-pointer text-body text-sm font-medium hover:text-heading transition-colors">
             Success stories
           </a>
         </li>
         <li>
-          <a href="#faq" className="text-body text-sm font-medium hover:text-heading transition-colors">
+          <a href="#faq" className="cursor-pointer text-body text-sm font-medium hover:text-heading transition-colors">
             FAQ
           </a>
         </li>
@@ -59,10 +59,10 @@ export function Nav() {
 
       {open && (
         <div className="absolute top-16 left-0 right-0 bg-bg border-b border-border p-5 flex flex-col gap-4 md:hidden shadow-lg">
-          <a href="#how" onClick={() => setOpen(false)} className="text-body text-sm font-medium hover:text-accent transition-colors">How it works</a>
-          <a href="#writers" onClick={() => setOpen(false)} className="text-body text-sm font-medium hover:text-accent transition-colors">Our writers</a>
-          <a href="#testimonials" onClick={() => setOpen(false)} className="text-body text-sm font-medium hover:text-accent transition-colors">Success stories</a>
-          <a href="#faq" onClick={() => setOpen(false)} className="text-body text-sm font-medium hover:text-accent transition-colors">FAQ</a>
+          <a href="#how" onClick={() => setOpen(false)} className="cursor-pointer text-body text-sm font-medium hover:text-accent transition-colors">How it works</a>
+          <a href="#writers" onClick={() => setOpen(false)} className="cursor-pointer text-body text-sm font-medium hover:text-accent transition-colors">Our writers</a>
+          <a href="#testimonials" onClick={() => setOpen(false)} className="cursor-pointer text-body text-sm font-medium hover:text-accent transition-colors">Success stories</a>
+          <a href="#faq" onClick={() => setOpen(false)} className="cursor-pointer text-body text-sm font-medium hover:text-accent transition-colors">FAQ</a>
         </div>
       )}
     </nav>

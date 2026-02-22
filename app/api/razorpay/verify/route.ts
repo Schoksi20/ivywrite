@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
     const { data: order } = await supabase
       .from("orders")
-      .select("id, name, email, university, program, payment_status")
+      .select("id, name, email, university, program, payment_status, coupon_code, amount_paid")
       .eq("id", orderId)
       .single();
 
@@ -36,10 +36,14 @@ export async function POST(req: NextRequest) {
         .update({
           razorpay_payment_id,
           payment_status: "paid",
-          amount_paid: 999 * 100,
           sop_status: "paid",
         })
         .eq("id", orderId);
+
+      // Increment coupon usage if one was applied
+      if (order.coupon_code) {
+        await supabase.rpc("increment_coupon_usage", { coupon_code_val: order.coupon_code });
+      }
 
       try {
         await sendPaymentConfirmation(

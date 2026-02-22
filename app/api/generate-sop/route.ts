@@ -4,7 +4,7 @@ import { generateSOP } from "@/lib/openai";
 import { sendSOPDelivery } from "@/lib/email";
 import type { QuestionnaireAnswers } from "@/lib/types";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");

@@ -9,6 +9,8 @@ function checkAuth(req: NextRequest): boolean {
   return session === process.env.ADMIN_PASSWORD;
 }
 
+export const maxDuration = 120;
+
 export async function POST(req: NextRequest) {
   if (!checkAuth(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

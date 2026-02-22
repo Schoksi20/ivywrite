@@ -300,7 +300,7 @@ export default function QuestionnairePage() {
               disabled={submitting}
               className="bg-accent text-white dark:text-black text-sm font-bold px-8 py-3 rounded-lg hover:shadow-[0_4px_16px_var(--accent-glow)] transition-all disabled:opacity-60"
             >
-              {submitting ? "Submitting..." : "Submit & Pay \u20B9999"}
+              {submitting ? "Submitting..." : "Submit & Pay \u20B91499"}
             </button>
           )}
         </div>
