@@ -198,17 +198,14 @@ INSTRUCTIONS:
 • Match vocabulary complexity to the student's English proficiency score.
 • 800–1000 words. No headers. No bullet points. First person.`;
 
-  const response = await openai.chat.completions.create({
+  const response = await openai.responses.create({
     model: GENERATION_MODEL,
-    messages: [
-      { role: "system", content: GENERATION_SYSTEM_PROMPT },
-      { role: "user", content: userPrompt },
-    ],
-    temperature: 0.75,
-    max_tokens: 2200,
+    instructions: GENERATION_SYSTEM_PROMPT,
+    input: userPrompt,
+    reasoning: { effort: "low" },
   });
 
-  return response.choices[0]?.message?.content ?? "";
+  return response.output_text ?? "";
 }
 
 // ─── Pass 2: Fact-Check & Polish ─────────────────────────────────────────────
@@ -249,17 +246,14 @@ ${draft}
 
 Fact-check the draft against the questionnaire answers above. Correct any inaccuracies. Return only the final SOP.`;
 
-  const response = await openai.chat.completions.create({
+  const response = await openai.responses.create({
     model: FACTCHECK_MODEL,
-    messages: [
-      { role: "system", content: FACTCHECK_SYSTEM_PROMPT },
-      { role: "user", content: userPrompt },
-    ],
-    temperature: 0.2,
-    max_tokens: 2200,
+    instructions: FACTCHECK_SYSTEM_PROMPT,
+    input: userPrompt,
+    reasoning: { effort: "low" },
   });
 
-  return response.choices[0]?.message?.content ?? draft;
+  return response.output_text ?? draft;
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
