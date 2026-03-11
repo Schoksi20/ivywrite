@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   try {
     const body: CreateOrderPayload = await req.json();
 
-    if (!body.name || !body.email || !body.university || !body.program || !body.degree_type) {
+    if (!body.name || !body.email || !body.university || !body.program) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         phone: body.phone || null,
         university: body.university,
         program: body.program,
-        degree_type: body.degree_type,
+        degree_type: body.degree_type || "MS",
         questionnaire_answers: body.questionnaire_answers,
         payment_status: "pending",
         sop_status: "awaiting_payment",

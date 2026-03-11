@@ -1,18 +1,18 @@
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import type { QuestionnaireAnswers } from "./types";
 
 // ─── Model Configuration ────────────────────────────────────────────────────
-const GENERATION_MODEL = "gpt-5.2";
-const FACTCHECK_MODEL  = "gpt-5.2";
+const GENERATION_MODEL = "claude-opus-4-5-20251101";
+const FACTCHECK_MODEL  = "claude-opus-4-5-20251101";
 
-// ─── Pricing (USD per million tokens) — gpt-5.2 Standard ────────────────────
-const INPUT_COST_PER_M  = 1.75;  // $ per million input tokens
-const OUTPUT_COST_PER_M = 14.00; // $ per million output tokens
+// ─── Pricing (USD per million tokens) — Claude Opus 4.5 ─────────────────────
+const INPUT_COST_PER_M  = 5.00;   // $ per million input tokens
+const OUTPUT_COST_PER_M = 25.00;  // $ per million output tokens
 
 // ─── Client ─────────────────────────────────────────────────────────────────
-let client: OpenAI | null = null;
-function getClient(): OpenAI {
-  if (!client) client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+let client: Anthropic | null = null;
+function getClient(): Anthropic {
+  if (!client) client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
   return client;
 }
 
@@ -92,7 +92,7 @@ INTERDISCIPLINARY / OTHER:
 FINAL PARAMETERS
 ═══════════════════════════════════════════════════
 
-• Length: 800–1000 words. Every sentence earns its place.
+• Length: 800–1500 words. Every sentence earns its place.
 • Person: First person throughout.
 • Tense: Mix of past tense (experiences) and present/future (identity, goals).
 • Never use bullet points, headers, or section labels in the final SOP.
@@ -122,32 +122,117 @@ OUTPUT RULES:
 • If no corrections are needed, return the SOP exactly as provided.
 • Preserve all paragraph breaks and formatting of the original.`;
 
-// ─── Helper: determine major category from program string ────────────────────
-function getMajorCategory(program: string, degreeType: string): string {
+// ─── Helper: determine major category ────────────────────────────────────────
+function getMajorCategory(answers: QuestionnaireAnswers, program: string, degreeType: string): string {
+  const explicit = answers.majorCategory;
+  if (explicit) {
+    const map: Record<string, string> = {
+      business: "Business/Management",
+      data_tech: "Data/Tech/Quant",
+      engineering: "Engineering",
+      pure_sciences: "Pure Sciences/Math",
+      interdisciplinary: "Interdisciplinary/Other",
+    };
+    return map[explicit] || "Interdisciplinary/Other";
+  }
   const text = `${program} ${degreeType}`.toLowerCase();
-  if (/mba|finance|marketing|management|accounting|business analytics|strategy/.test(text)) {
-    return "Business/Management";
-  }
-  if (/data science|computer science|cs|ai|artificial intelligence|statistics|information systems|mqf|quantitative/.test(text)) {
-    return "Data/Tech/Quant";
-  }
-  if (/engineering|biomedical|biotechnology|civil|mechanical|electrical|chemical|industrial|agricultural/.test(text)) {
-    return "Engineering";
-  }
-  if (/mathematics|math|physics|chemistry|biology|biochemistry|neuroscience/.test(text)) {
-    return "Pure Sciences/Math";
-  }
+  if (/mba|finance|marketing|management|accounting|business analytics|strategy/.test(text)) return "Business/Management";
+  if (/data science|computer science|cs|ai|artificial intelligence|statistics|information systems|mqf|quantitative/.test(text)) return "Data/Tech/Quant";
+  if (/engineering|biomedical|biotechnology|civil|mechanical|electrical|chemical|industrial|agricultural/.test(text)) return "Engineering";
+  if (/mathematics|math|physics|chemistry|biology|biochemistry|neuroscience/.test(text)) return "Pure Sciences/Math";
   return "Interdisciplinary/Other";
+}
+
+// ─── Helper: format test scores from structured fields ───────────────────────
+function formatTestScores(a: QuestionnaireAnswers): string {
+  const parts: string[] = [];
+
+  if (a.greVerbal || a.greQuant) {
+    const gre = [`GRE`];
+    if (a.greVerbal) gre.push(`Verbal: ${a.greVerbal}/170`);
+    if (a.greQuant) gre.push(`Quant: ${a.greQuant}/170`);
+    parts.push(gre.join(" "));
+  }
+  if (a.toeflReading || a.toeflListening || a.toeflSpeaking || a.toeflWriting) {
+    const t = ["TOEFL"];
+    if (a.toeflReading) t.push(`R:${a.toeflReading}`);
+    if (a.toeflListening) t.push(`L:${a.toeflListening}`);
+    if (a.toeflSpeaking) t.push(`S:${a.toeflSpeaking}`);
+    if (a.toeflWriting) t.push(`W:${a.toeflWriting}`);
+    const total = [a.toeflReading, a.toeflListening, a.toeflSpeaking, a.toeflWriting]
+      .filter(Boolean).map(Number).reduce((s, n) => s + n, 0);
+    if (total) t.push(`(Total: ${total}/120)`);
+    parts.push(t.join(" "));
+  }
+  if (a.ieltsListening || a.ieltsReading || a.ieltsWriting || a.ieltsSpeaking) {
+    const i = ["IELTS"];
+    if (a.ieltsListening) i.push(`L:${a.ieltsListening}`);
+    if (a.ieltsReading) i.push(`R:${a.ieltsReading}`);
+    if (a.ieltsWriting) i.push(`W:${a.ieltsWriting}`);
+    if (a.ieltsSpeaking) i.push(`S:${a.ieltsSpeaking}`);
+    parts.push(i.join(" "));
+  }
+
+  if (a.englishTestScore) parts.push(a.englishTestScore);
+
+  return parts.length > 0 ? parts.join(" | ") : "Not provided";
+}
+
+// ─── Helper: extract Q10-Q13 answers based on major ──────────────────────────
+function getMajorSpecificAnswers(a: QuestionnaireAnswers, major: string): string {
+  switch (major) {
+    case "Business/Management":
+      return `Leadership/Impact Moment (Q10): ${a.leadershipImpact || "Not provided"}
+
+Analytical/Strategic Thinking (Q11): ${a.analyticalThinking || "Not provided"}
+
+Cross-Functional Experience (Q12): ${a.crossFunctionalExperience || "Not provided"}
+
+Industry Exposure (Q13): ${a.industryExposure || "Not provided"}`;
+
+    case "Data/Tech/Quant":
+      return `Technical Project (Q10): ${a.technicalProject || "Not provided"}
+
+Applied Problem-Solving (Q11): ${a.appliedProblemSolving || "Not provided"}
+
+Collaborative Technical Work (Q12): ${a.collaborativeTechnicalWork || "Not provided"}
+
+Continuous Learning (Q13): ${a.continuousLearning || "Not provided"}`;
+
+    case "Engineering":
+      return `Design/Build Experience (Q10): ${a.designBuildExperience || "Not provided"}
+
+Problem-Solving Methodology (Q11): ${a.problemSolvingMethodology || "Not provided"}
+
+Real-World Application (Q12): ${a.realWorldApplication || "Not provided"}
+
+Interdisciplinary Integration (Q13): ${a.interdisciplinaryIntegration || "Not provided"}`;
+
+    case "Pure Sciences/Math":
+      return `Research Experience (Q10): ${a.researchExperience || "Not provided"}
+
+Abstract-to-Concrete Translation (Q11): ${a.abstractToConcreteTranslation || "Not provided"}
+
+Collaborative Discovery (Q12): ${a.collaborativeDiscovery || "Not provided"}
+
+Field Applications (Q13): ${a.fieldApplications || "Not provided"}`;
+
+    default:
+      return `Combined Skills Project (Q10): ${a.combinedSkillsProject || "Not provided"}
+
+Cross-Discipline Methods (Q11): ${a.crossDisciplineMethods || "Not provided"}
+
+Cross-Background Collaboration (Q12): ${a.crossBackgroundCollaboration || "Not provided"}
+
+Unique Interdisciplinary Perspective (Q13): ${a.uniqueInterdisciplinaryPerspective || "Not provided"}`;
+  }
 }
 
 // ─── Sanitizer: remove AI-isms that slip past the LLM ────────────────────────
 function sanitize(text: string): string {
   return text
-    // " — " and " – " used as connectors → comma
     .replace(/ [—–] /g, ", ")
-    // em/en dash directly between a lowercase and uppercase letter (no spaces) → period + space
     .replace(/([a-z])[—–]([A-Z])/g, "$1. $2")
-    // any remaining isolated em/en dashes → comma
     .replace(/[—–]/g, ", ");
 }
 
@@ -164,17 +249,15 @@ async function generateDraft(
   degreeType: string,
   studentName: string
 ): Promise<{ content: string; costUsd: number }> {
-  const openai = getClient();
-  const majorCategory = getMajorCategory(program, degreeType);
+  const anthropic = getClient();
+  const majorCategory = getMajorCategory(answers, program, degreeType);
+  const majorAnswers = getMajorSpecificAnswers(answers, majorCategory);
 
   const userPrompt = `Write a Statement of Purpose for ${studentName} applying to ${program} (${degreeType}) at ${university}.
 
 MAJOR CATEGORY: ${majorCategory}
 
 ═══ STUDENT QUESTIONNAIRE RESPONSES ═══
-
-English Proficiency Score: ${answers.englishTestScore || "Not provided"}
-Programs Applying For: ${answers.programsApplying || "Not provided"}
 
 ─── CORE IDENTITY ───
 Origin Story (the ONE defining moment): ${answers.originStory}
@@ -193,13 +276,7 @@ Belief Shift (a conviction they had to abandon): ${answers.beliefShift}
 Surprise Achievement: ${answers.surpriseAchievement}
 
 ─── MAJOR-SPECIFIC EVIDENCE (Q10–Q13) ───
-Leadership / Technical / Research Project (Q10): ${answers.leadershipImpact}
-
-Analytical / Problem-Solving / Abstract Thinking (Q11): ${answers.analyticalThinking}
-
-Cross-Functional / Collaborative / Interdisciplinary Work (Q12): ${answers.crossFunctionalExperience}
-
-Industry / Research / Applied Exposure (Q13): ${answers.industryExposure}
+${majorAnswers}
 
 ─── FUTURE & FIT ───
 Unique Position (problem only they can solve): ${answers.uniquePosition}
@@ -219,22 +296,20 @@ INSTRUCTIONS:
 • Apply the ${majorCategory} major-specific priorities from your guidelines.
 • Select the 3–4 most powerful moments — do NOT mention every answer.
 • The SOP should feel like one unified story, not a questionnaire answered in paragraph form.
-• Match vocabulary complexity to the student's English proficiency score.
-• 800–1000 words. No headers. No bullet points. First person.`;
+• 800–1500 words. No headers. No bullet points. First person.`;
 
-  const response = await openai.responses.create({
+  const response = await anthropic.messages.create({
     model: GENERATION_MODEL,
-    instructions: GENERATION_SYSTEM_PROMPT,
-    input: userPrompt,
-    reasoning: { effort: "low" },
+    max_tokens: 3000,
+    system: GENERATION_SYSTEM_PROMPT,
+    messages: [{ role: "user", content: userPrompt }],
+    temperature: 0.7,
   });
 
-  const usage = response.usage;
-  const costUsd = usage
-    ? calcCost(usage.input_tokens, usage.output_tokens)
-    : 0;
+  const text = response.content[0].type === "text" ? response.content[0].text : "";
+  const costUsd = calcCost(response.usage.input_tokens, response.usage.output_tokens);
 
-  return { content: response.output_text ?? "", costUsd };
+  return { content: text, costUsd };
 }
 
 // ─── Pass 2: Fact-Check & Polish ─────────────────────────────────────────────
@@ -245,7 +320,10 @@ async function factCheck(
   program: string,
   studentName: string
 ): Promise<{ content: string; costUsd: number }> {
-  const openai = getClient();
+  const anthropic = getClient();
+
+  const majorCategory = getMajorCategory(answers, program, "MS");
+  const majorAnswers = getMajorSpecificAnswers(answers, majorCategory);
 
   const userPrompt = `STUDENT: ${studentName} | PROGRAM: ${program} at ${university}
 
@@ -258,10 +336,7 @@ Driving Question: ${answers.drivingQuestion}
 Transformation Failure: ${answers.transformationFailure}
 Belief Shift: ${answers.beliefShift}
 Surprise Achievement: ${answers.surpriseAchievement}
-Leadership/Technical Project (Q10): ${answers.leadershipImpact}
-Analytical Thinking (Q11): ${answers.analyticalThinking}
-Cross-Functional Work (Q12): ${answers.crossFunctionalExperience}
-Industry/Research Exposure (Q13): ${answers.industryExposure}
+${majorAnswers}
 Unique Position: ${answers.uniquePosition}
 Why This Program: ${answers.perfectAlignment}
 5–10 Year Vision: ${answers.fiveYearVision}
@@ -275,19 +350,18 @@ ${draft}
 
 Fact-check the draft against the questionnaire answers above. Correct any inaccuracies. Return only the final SOP.`;
 
-  const response = await openai.responses.create({
+  const response = await anthropic.messages.create({
     model: FACTCHECK_MODEL,
-    instructions: FACTCHECK_SYSTEM_PROMPT,
-    input: userPrompt,
-    reasoning: { effort: "low" },
+    max_tokens: 3000,
+    system: FACTCHECK_SYSTEM_PROMPT,
+    messages: [{ role: "user", content: userPrompt }],
+    temperature: 0.3,
   });
 
-  const usage = response.usage;
-  const costUsd = usage
-    ? calcCost(usage.input_tokens, usage.output_tokens)
-    : 0;
+  const text = response.content[0].type === "text" ? response.content[0].text : draft;
+  const costUsd = calcCost(response.usage.input_tokens, response.usage.output_tokens);
 
-  return { content: response.output_text ?? draft, costUsd };
+  return { content: text, costUsd };
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -298,10 +372,7 @@ export async function generateSOP(
   degreeType: string,
   studentName: string
 ): Promise<{ content: string; costUsd: number }> {
-  // Pass 1: Generate narrative draft
   const { content: draft, costUsd: cost1 } = await generateDraft(answers, university, program, degreeType, studentName);
-
-  // Pass 2: Fact-check against student's actual answers
   const { content: final, costUsd: cost2 } = await factCheck(draft, answers, university, program, studentName);
 
   return { content: sanitize(final), costUsd: cost1 + cost2 };

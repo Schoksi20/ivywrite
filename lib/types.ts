@@ -1,6 +1,21 @@
 export interface QuestionnaireAnswers {
-  englishTestScore: string;
+  // Test scores (structured)
+  greVerbal?: string;
+  greQuant?: string;
+  toeflReading?: string;
+  toeflListening?: string;
+  toeflSpeaking?: string;
+  toeflWriting?: string;
+  ieltsListening?: string;
+  ieltsReading?: string;
+  ieltsWriting?: string;
+  ieltsSpeaking?: string;
+
+  // Major category selection
+  majorCategory?: string;
   programsApplying: string;
+
+  // Universal identity questions
   originStory: string;
   intellectualDNA: string;
   authenticContradiction: string;
@@ -8,15 +23,46 @@ export interface QuestionnaireAnswers {
   transformationFailure: string;
   beliefShift: string;
   surpriseAchievement: string;
-  leadershipImpact: string;
-  analyticalThinking: string;
-  crossFunctionalExperience: string;
-  industryExposure: string;
+
+  // Business/Management Q10-Q13
+  leadershipImpact?: string;
+  analyticalThinking?: string;
+  crossFunctionalExperience?: string;
+  industryExposure?: string;
+
+  // Data/Tech/Quant Q10-Q13
+  technicalProject?: string;
+  appliedProblemSolving?: string;
+  collaborativeTechnicalWork?: string;
+  continuousLearning?: string;
+
+  // Engineering Q10-Q13
+  designBuildExperience?: string;
+  problemSolvingMethodology?: string;
+  realWorldApplication?: string;
+  interdisciplinaryIntegration?: string;
+
+  // Pure Sciences/Math Q10-Q13
+  researchExperience?: string;
+  abstractToConcreteTranslation?: string;
+  collaborativeDiscovery?: string;
+  fieldApplications?: string;
+
+  // Interdisciplinary Q10-Q13
+  combinedSkillsProject?: string;
+  crossDisciplineMethods?: string;
+  crossBackgroundCollaboration?: string;
+  uniqueInterdisciplinaryPerspective?: string;
+
+  // Universal future & fit
   uniquePosition: string;
   perfectAlignment: string;
   fiveYearVision: string;
   legacyContribution: string;
   additionalInfo?: string;
+
+  // Legacy single-field score (kept for backward compat with old orders)
+  englishTestScore?: string;
 }
 
 export type PaymentStatus = "pending" | "paid" | "failed";
@@ -71,6 +117,6 @@ export interface CreateOrderPayload {
   phone?: string;
   university: string;
   program: string;
-  degree_type: string;
+  degree_type?: string;
   questionnaire_answers: QuestionnaireAnswers;
 }

@@ -94,9 +94,14 @@ export async function sendPaymentConfirmation(
   to: string,
   name: string,
   university: string,
-  program: string
+  program: string,
+  amountPaise?: number
 ) {
   const resend = getResend();
+  const displayAmount = amountPaise
+    ? (amountPaise / 100).toLocaleString("en-IN")
+    : "1,499";
+
   await resend.emails.send({
     from: "ivywrite <onboarding@resend.dev>",
     to,
@@ -116,7 +121,7 @@ export async function sendPaymentConfirmation(
             Hi ${name},
           </p>
           <p style="font-size: 15px; line-height: 1.7; color: #444;">
-            Your payment of <strong>&#8377;1499</strong> has been received. We're now crafting your
+            Your payment of <strong>&#8377;${displayAmount}</strong> has been received. We're now crafting your
             Statement of Purpose for <strong>${program}</strong> at <strong>${university}</strong>.
           </p>
           <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 24px 0;">

@@ -57,7 +57,8 @@ export async function POST(req: NextRequest) {
           order.email,
           order.name,
           order.university,
-          order.program
+          order.program,
+          amountPaid
         );
       } catch (emailErr) {
         console.error("Failed to send confirmation email:", emailErr);
