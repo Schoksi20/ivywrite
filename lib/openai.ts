@@ -367,6 +367,43 @@ Fact-check the draft against the questionnaire answers above. Correct any inaccu
   return { content: text, costUsd };
 }
 
+// ─── Input Sanitizer (Sonnet — cheap/fast typo correction) ───────────────────
+const SANITIZE_MODEL = "claude-sonnet-4-20250514";
+
+export async function sanitizeStudentInputs(
+  name: string,
+  university: string,
+  program: string
+): Promise<{ name: string; university: string; program: string; costUsd: number }> {
+  const anthropic = getClient();
+
+  const response = await anthropic.messages.create({
+    model: SANITIZE_MODEL,
+    max_tokens: 200,
+    temperature: 0,
+    system: `You fix typos and capitalization in student form inputs. Return ONLY valid JSON with exactly three keys: "name", "university", "program". Fix obvious spelling errors (e.g. "Stanofrd" → "Stanford", "Harvrad" → "Harvard", "compter science" → "Computer Science"). Correct capitalization to proper title case. If the input looks correct, return it unchanged. No explanation, no markdown, just the JSON object.`,
+    messages: [{
+      role: "user",
+      content: `{"name": ${JSON.stringify(name)}, "university": ${JSON.stringify(university)}, "program": ${JSON.stringify(program)}}`,
+    }],
+  });
+
+  const text = response.content[0].type === "text" ? response.content[0].text : "";
+  const cost = calcCost(response.usage.input_tokens, response.usage.output_tokens);
+
+  try {
+    const parsed = JSON.parse(text);
+    return {
+      name: parsed.name || name,
+      university: parsed.university || university,
+      program: parsed.program || program,
+      costUsd: cost,
+    };
+  } catch {
+    return { name, university, program, costUsd: cost };
+  }
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 export async function generateSOP(
   answers: QuestionnaireAnswers,

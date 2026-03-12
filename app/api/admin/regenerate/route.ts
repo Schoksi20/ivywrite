@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceClient } from "@/lib/supabase";
-import { generateSOP } from "@/lib/openai";
+import { generateSOP, sanitizeStudentInputs } from "@/lib/openai";
 import { sendSOPDelivery } from "@/lib/email";
 import type { QuestionnaireAnswers } from "@/lib/types";
 
@@ -64,13 +64,31 @@ export async function POST(req: NextRequest) {
       .update({ sop_status: "generating" })
       .eq("id", orderId);
 
+    // Sanitize student inputs (fix typos in name, university, program)
+    const sanitized = await sanitizeStudentInputs(
+      order.name,
+      order.university,
+      order.program
+    );
+
+    if (sanitized.name !== order.name || sanitized.university !== order.university || sanitized.program !== order.program) {
+      await supabase
+        .from("orders")
+        .update({
+          name: sanitized.name,
+          university: sanitized.university,
+          program: sanitized.program,
+        })
+        .eq("id", orderId);
+    }
+
     const answers = order.questionnaire_answers as QuestionnaireAnswers;
     const { content: sopResult, costUsd } = await generateSOP(
       answers,
-      order.university,
-      order.program,
+      sanitized.university,
+      sanitized.program,
       order.degree_type,
-      order.name
+      sanitized.name
     );
 
     const now = new Date().toISOString();
@@ -88,14 +106,14 @@ export async function POST(req: NextRequest) {
     if (sendEmail) {
       await sendSOPDelivery(
         order.email,
-        order.name,
-        order.university,
-        order.program,
+        sanitized.name,
+        sanitized.university,
+        sanitized.program,
         sopResult
       );
     }
 
-    return NextResponse.json({ success: true, sopContent: sopResult, costUsd });
+    return NextResponse.json({ success: true, sopContent: sopResult, costUsd: costUsd + sanitized.costUsd });
   } catch (err) {
     console.error("Regeneration error:", err);
     return NextResponse.json({ error: "Failed to regenerate SOP" }, { status: 500 });
