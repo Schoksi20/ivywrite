@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: "What information will I need to provide?",
-    a: "After payment, you will receive a structured questionnaire covering your academic background, research or work experience, reasons for applying, career goals, and notable achievements. It takes about 15 minutes and forms the foundation your writer uses to craft your statement.",
+    a: "Before payment, you fill out a structured questionnaire covering your academic background, research or work experience, reasons for applying, career goals, and notable achievements. It takes about an hour to complete thoroughly and forms the foundation your writer uses to craft your statement.",
   },
 ];
 

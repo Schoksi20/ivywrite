@@ -98,7 +98,8 @@ FINAL PARAMETERS
 • Never use bullet points, headers, or section labels in the final SOP.
 • The SOP must feel like a single, unbroken narrative — not a collection of paragraphs each answering a different question.
 • NEVER use em dashes (—) or en dashes (–) as connectors between clauses or sentences. Use a comma, semicolon, or period instead. Hyphens in compound words (e.g. "self-driven", "cross-functional") are fine.
-• NEVER use these filler phrases: "furthermore", "moreover", "in conclusion", "it is worth noting", "it is important to note", "needless to say", "that being said", "having said that", "delve into", "testament to", "underpinned by", "grounded in the belief", "with that in mind".`;
+• NEVER use these filler phrases: "furthermore", "moreover", "in conclusion", "it is worth noting", "it is important to note", "needless to say", "that being said", "having said that", "delve into", "testament to", "underpinned by", "grounded in the belief", "with that in mind".
+• NEVER invent or fabricate faculty names, lab names, course names, or research center names. Only use specific names if the student explicitly provided them in their questionnaire answers. If the student did not name specific faculty or labs, write about the program's strengths in general terms.`;
 
 // ─── Fact-Checker System Prompt ──────────────────────────────────────────────
 const FACTCHECK_SYSTEM_PROMPT = `You are a meticulous fact-checker and editor reviewing a Statement of Purpose for graduate school admission. Your sole job is to ensure every specific claim in the SOP is consistent with, and grounded in, the student's original questionnaire responses.
@@ -110,6 +111,8 @@ WHAT YOU CHECK:
 4. Internal consistency — Does the SOP contradict itself anywhere?
 5. Specificity gaps — If the SOP makes a vague claim where the student provided a specific detail, insert the specific detail.
 6. AI-ism removal — Replace any em dash (—) or en dash (–) used as a clause connector with a comma, semicolon, or period as appropriate. Hyphens inside compound words (e.g. "self-driven") must be kept. Remove filler phrases such as "furthermore", "moreover", "in conclusion", "it is worth noting", "needless to say", "that being said", "delve into", "testament to" — rewrite the sentence naturally without them.
+
+7. Fabricated names — If the SOP mentions a specific faculty member, lab, course, or research center that the student did NOT explicitly name in their questionnaire, remove it and replace with a general reference to the program's strengths.
 
 WHAT YOU DO NOT CHANGE:
 • The narrative structure, arc, or paragraph order.

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 const EFFECTIVE_DATE = "1 February 2026";
-const CONTACT_EMAIL = "hello@ivywrite.in";
+const CONTACT_EMAIL = "support@ivy-write.com";
 
 export default function TermsPage() {
   return (
@@ -76,16 +76,20 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-heading mb-3">4. No Refunds</h2>
+            <h2 className="text-lg font-bold text-heading mb-3">4. Refund Policy</h2>
             <p className="font-semibold text-heading">
-              All sales are final. ivywrite does not offer refunds under any circumstances once an order
-              has been placed and payment has been processed.
+              All sales are final. ivywrite does not offer refunds once an order has been placed and
+              payment has been processed.
             </p>
             <p className="mt-3">
               Because our Service involves the immediate allocation of a skilled writer&apos;s time and
               the creation of an entirely bespoke document, we are unable to reverse the work that begins
-              upon order confirmation. By completing payment you acknowledge and accept this no-refund
-              policy.
+              upon order confirmation. By completing payment you acknowledge and accept this policy.
+            </p>
+            <p className="mt-3 font-semibold text-heading">
+              The sole exception is non-delivery: if ivywrite fails to deliver your SOP within 72 hours
+              of payment confirmation, you are entitled to a full refund. To claim this refund, email
+              support@ivy-write.com within 7 days of payment with your order details.
             </p>
           </section>
 

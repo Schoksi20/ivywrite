@@ -25,11 +25,11 @@ function generateSOPPdf(
   // Header
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
-  doc.setTextColor(16, 185, 129); // accent green
+  doc.setTextColor(99, 102, 241);
   doc.text("ivywrite", margin, y);
   y += 10;
 
-  doc.setDrawColor(16, 185, 129);
+  doc.setDrawColor(99, 102, 241);
   doc.setLineWidth(0.5);
   doc.line(margin, y, pageWidth - margin, y);
   y += 12;
@@ -40,7 +40,7 @@ function generateSOPPdf(
   doc.setFont("helvetica", "normal");
   doc.text(`Prepared for: ${name}`, margin, y);
   y += 5;
-  doc.text(`${program} — ${university}`, margin, y);
+  doc.text(`${program}, ${university}`, margin, y);
   y += 12;
 
   // Title
@@ -76,11 +76,6 @@ function generateSOPPdf(
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(160, 160, 160);
-    doc.text(
-      `ivywrite — SOPs written by Ivy League students`,
-      margin,
-      290
-    );
     doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, 290, {
       align: "right",
     });
@@ -103,19 +98,20 @@ export async function sendPaymentConfirmation(
     : "1,499";
 
   await resend.emails.send({
-    from: "ivywrite <onboarding@resend.dev>",
+    from: "ivywrite <hello@ivy-write.com>",
+    replyTo: "support@ivy-write.com",
     to,
-    subject: "Payment Confirmed — Your SOP is Being Crafted",
+    subject: "Payment Confirmed. Your SOP is being crafted",
     html: `
       <div style="font-family: 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
-        <div style="padding: 32px 0; border-bottom: 2px solid #10B981;">
+        <div style="padding: 32px 0; border-bottom: 2px solid #6366f1;">
           <h1 style="font-size: 22px; font-weight: 800; margin: 0;">
-            ivy<span style="color: #10B981;">write</span>
+            ivy<span style="color: #6366f1;">write</span>
           </h1>
         </div>
         <div style="padding: 32px 0;">
           <h2 style="font-size: 20px; font-weight: 700; margin: 0 0 16px;">
-            Payment Confirmed
+            Payment confirmed
           </h2>
           <p style="font-size: 15px; line-height: 1.7; color: #444;">
             Hi ${name},
@@ -124,11 +120,11 @@ export async function sendPaymentConfirmation(
             Your payment of <strong>&#8377;${displayAmount}</strong> has been received. We're now crafting your
             Statement of Purpose for <strong>${program}</strong> at <strong>${university}</strong>.
           </p>
-          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 24px 0;">
-            <p style="font-size: 14px; color: #166534; margin: 0; font-weight: 600;">
+          <div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 20px; margin: 24px 0;">
+            <p style="font-size: 14px; color: #3730a3; margin: 0; font-weight: 600;">
               Expected delivery: within 72 hours
             </p>
-            <p style="font-size: 13px; color: #166534; margin: 8px 0 0;">
+            <p style="font-size: 13px; color: #3730a3; margin: 8px 0 0;">
               Your SOP will be sent to this email address.
             </p>
           </div>
@@ -157,19 +153,20 @@ export async function sendSOPDelivery(
   const safeUni = university.replace(/[^a-zA-Z0-9]+/g, "_");
 
   await resend.emails.send({
-    from: "ivywrite <onboarding@resend.dev>",
+    from: "ivywrite <hello@ivy-write.com>",
+    replyTo: "support@ivy-write.com",
     to,
-    subject: `Your SOP for ${university} is Ready`,
+    subject: `Your SOP for ${university} is ready`,
     html: `
       <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
-        <div style="padding: 32px 0; border-bottom: 2px solid #10B981;">
+        <div style="padding: 32px 0; border-bottom: 2px solid #6366f1;">
           <h1 style="font-size: 22px; font-weight: 800; margin: 0;">
-            ivy<span style="color: #10B981;">write</span>
+            ivy<span style="color: #6366f1;">write</span>
           </h1>
         </div>
         <div style="padding: 32px 0;">
           <h2 style="font-size: 20px; font-weight: 700; margin: 0 0 16px;">
-            Your SOP is Ready
+            Your SOP is ready
           </h2>
           <p style="font-size: 15px; line-height: 1.7; color: #444;">
             Hi ${name},
@@ -182,8 +179,15 @@ export async function sendSOPDelivery(
           <div style="background: #fafafa; border: 1px solid #e5e5e5; border-radius: 8px; padding: 24px; margin: 24px 0; font-size: 14px; line-height: 1.85; color: #333; white-space: pre-wrap;">
 ${sopContent}
           </div>
+          <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin: 24px 0;">
+            <p style="font-size: 13px; color: #92400e; margin: 0; font-weight: 600;">
+              Important: Do not upload this document directly to your university application.
+            </p>
+            <p style="font-size: 13px; color: #92400e; margin: 6px 0 0;">
+              Copy the content into a Google Doc or Word document, review and personalize it, then submit that version. This PDF is for your reference only.
+            </p>
+          </div>
           <p style="font-size: 14px; line-height: 1.7; color: #666;">
-            We recommend copying this into a Google Doc and reviewing it before submitting.
             Best of luck with your application!
           </p>
         </div>

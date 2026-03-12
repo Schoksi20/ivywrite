@@ -13,7 +13,7 @@ const steps = [
       </svg>
     ),
     title: "Answer smart questions",
-    desc: "Fill in our structured questionnaire about your academic background, research experience, career goals, and target program. Takes about 15 minutes to complete.",
+    desc: "Fill in our structured questionnaire about your academic background, research experience, career goals, and target program. Takes about an hour to complete thoroughly. You can save your progress and come back anytime.",
   },
   {
     badge: "Step 02",

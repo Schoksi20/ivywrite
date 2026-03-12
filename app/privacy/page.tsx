@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 const EFFECTIVE_DATE = "1 February 2026";
-const CONTACT_EMAIL = "hello@ivywrite.in";
+const CONTACT_EMAIL = "support@ivy-write.com";
 
 export default function PrivacyPage() {
   return (
