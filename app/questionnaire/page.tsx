@@ -190,8 +190,14 @@ export default function QuestionnairePage() {
       legacyContribution: "I want to build the 'testing infrastructure' layer for machine learning that the field currently lacks. Software engineering has decades of established practices for testing, monitoring, and debugging. ML has almost nothing comparable. I want my career to tell the story of someone who helped make ML engineering as rigorous and reliable as traditional software engineering, so that AI systems can be trusted in domains where failure isn't an option: medicine, transportation, and public safety.",
       additionalInfo: "Published a paper at a regional ACM conference on efficient data augmentation techniques for low-resource NLP tasks. Active open-source contributor to the Hugging Face Transformers library with 3 merged PRs. Volunteer CS instructor at a coding bootcamp for underprivileged students in Pune.",
     };
-    setFormData((prev) => ({ ...prev, ...sample }));
-    persistDraft({ ...formData, ...sample }, step);
+    setFormData((prev) => {
+      const merged = { ...prev };
+      for (const [key, value] of Object.entries(sample)) {
+        if (!merged[key]?.trim()) merged[key] = value;
+      }
+      persistDraft(merged, step);
+      return merged;
+    });
   }
 
   return (
